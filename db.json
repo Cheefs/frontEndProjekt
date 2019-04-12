@@ -1,0 +1,151 @@
+{
+  "users": [
+    {
+      "username": "1234",
+      "password": "1251",
+      "email": "123123",
+      "card": "1231231",
+      "bio": "13231231",
+      "gender": "man",
+      "id": 1
+    }
+  ],
+  "cart": [
+    {
+      "username": "guestUser",
+      "product_id": 0,
+      "name": "Mango T-shirt",
+      "photo": "images/shirt3.jpg",
+      "price": "52.00",
+      "id": 1
+    },
+    {
+      "username": "guestUser",
+      "product_id": 0,
+      "name": "Mango T-shirt",
+      "photo": "images/shirt3.jpg",
+      "price": "52.00",
+      "id": 2
+    },
+    {
+      "username": "guestUser",
+      "product_id": 0,
+      "name": "Mango T-shirt",
+      "photo": "images/shirt4.jpg",
+      "price": "52.00",
+      "id": 3
+    },
+    {
+      "username": "guestUser",
+      "product_id": 0,
+      "name": "Mango T-shirt",
+      "photo": "images/shirt7.jpg",
+      "price": "52.00",
+      "id": 4
+    }
+  ],
+  "products": [
+    {
+      "id": 3,
+      "photo": "images/Layer_43.jpg",
+      "name": "Mango",
+      "price": "52.00"
+    },
+    {
+      "id": 4,
+      "photo": "images/Layer_4.jpg",
+      "name": "People",
+      "price": "142.00"
+    },
+    {
+      "id": 5,
+      "photo": "images/Layer_44.jpg",
+      "name": "ZANGO",
+      "price": "52.00"
+    },
+    {
+      "id": 6,
+      "photo": "images/Layer_45.jpg",
+      "name": "FENGPO",
+      "price": "52.00"
+    },
+    {
+      "id": 7,
+      "photo": "images/Layer_46.jpg",
+      "name": "DENGP",
+      "price": "52.00"
+    },
+    {
+      "id": 8,
+      "photo": "images/Layer_47.jpg",
+      "name": "Mango People",
+      "price": "52.00"
+    },
+    {
+      "id": 9,
+      "photo": "images/Layer_48.jpg",
+      "name": "T-shirt",
+      "price": "152.00"
+    },
+    {
+      "id": 10,
+      "photo": "images/Layer_49.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 11,
+      "photo": "images/Layer_50.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 12,
+      "photo": "images/shirt.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 13,
+      "photo": "images/shirt2.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 14,
+      "photo": "images/shirt3.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 15,
+      "photo": "images/shirt4.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 16,
+      "photo": "images/shirt5.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 17,
+      "photo": "images/shirt6.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 18,
+      "photo": "images/shirt7.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    },
+    {
+      "id": 19,
+      "photo": "images/shirt8.jpg",
+      "name": "Mango T-shirt",
+      "price": "52.00"
+    }
+  ]
+}
