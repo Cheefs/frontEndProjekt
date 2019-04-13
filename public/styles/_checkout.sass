@@ -77,7 +77,7 @@
     color: $colorWhite
 
 form
-  height: 342px
+  //height: 342px
   //width: 45%
 
   &.register-form
@@ -142,6 +142,14 @@ form
         color: $colorPink
     .input-block
       margin-top: 27px
+      &.edit-data
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: 0 auto
+        border: 1px solid #f7f7f7
+        border-top: none
+        padding: 0 150px
 
       .input-block-label
         display: block
@@ -168,10 +176,11 @@ form
         margin-bottom: 9px
         &.textarea
           padding: 10px
+          width: 400px
 
         &.invalid
           border: $minBorder-width solid red
-          box-sizing: border-box
+          //box-sizing: border-box
 
     .required-info
       color: #ff0d0d

@@ -1,14 +1,19 @@
 class Product {
-    constructor(id, name = 'EXCLUSIVE', price = 'SOLD', photo = 'no-photo', currency = '$') {
+    constructor(id, name = 'EXCLUSIVE', price = 'SOLD', photo = 'no-photo', currency = '$', size, color, category, type ) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.photo = photo;
         this.currency = currency;
+
+        this.size = size;
+        this.color = color;
+        this.category = category;
+        this.type = type;
     }
 
     render() {
-        return `<div class="product-item">
+        return `<div class="product-item" data-size="${this.size}" data-color="${this.color}" data-type="${this.type}" data-category="${this.category}" >
                     <a href="single-page.html" class="item">
                         <div class="item-photo photo" style="background-image:url(${this.photo})"></div>
                         <div class="item-text">
@@ -26,13 +31,17 @@ class Product {
 
 class ProductsList {
     constructor() {
-        this.minProducts = 9
+        this.minProducts = 9;
         this.maxProducts = 19;
         this.products = [];
     }
     fetchItems() {
         return sendRequest(`${API_URL}/products?_start=${this.minProducts}&_end=${this.maxProducts}`).then((value) => {
-            this.products = value.map(product => new Product(product.id, product.name, product.price, product.photo, product.currency));
+            this.products = value.map(product => new Product(
+                    product.id, product.name, product.price, product.photo, product.currency,
+                    product.size, product.color, product.category, product.type
+                )
+            );
         });
     }
     render() {
@@ -57,8 +66,16 @@ const $products = document.querySelector('.product-block');
         const price = $productData.querySelector('.price_value').textContent;
         const photo = $productData.querySelector('.photo').style.backgroundImage.replace('url("','').replace('")','');
         const username = document.cookie.trim() !== '' ? document.cookie : 'guestUser';
-        const product = new CartItem(null, id, username, name, price, photo, 1);
-        console.log(product);
+
+        const color = $productData.dataset.color;
+        const size = $productData.dataset.size;
+        const category = $productData.dataset.category;
+        const type = $productData.dataset.type;
+
+        console.log($productData);
+
+
+        const product = new CartItem(null, id, username, name, price, photo, size, color, category, type);
         cart.addProduct(product);
     }
 });

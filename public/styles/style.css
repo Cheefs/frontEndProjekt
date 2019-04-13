@@ -85,6 +85,48 @@ nav {
 .hide {
   display: none !important; }
 
+.nav__panel {
+  width: 30%;
+  border-left: 1px solid #f7f7f7; }
+  .nav__panel .nav__element {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f8f8f8;
+    color: #222222;
+    cursor: pointer; }
+    .nav__panel .nav__element.active {
+      color: #f16d7f;
+      border: 1px solid #f16d7f; }
+    .nav__panel .nav__element:hover {
+      color: #e3455afc; }
+
+.my-data_container {
+  width: 100%; }
+  .my-data_container .btn_save {
+    display: flex;
+    align-items: center;
+    justify-content: center; }
+  .my-data_container .edit-data .edit_gender {
+    display: block;
+    color: #222222;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 12px;
+    text-transform: uppercase;
+    text-align: center; }
+  .my-data_container .edit-data .gender__block {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    padding: 11px; }
+    .my-data_container .edit-data .gender__block .label {
+      margin: 0 10px;
+      cursor: pointer; }
+    .my-data_container .edit-data .gender__block .input_checkbox {
+      cursor: pointer; }
+
 .account__control {
   display: flex;
   align-items: center; }
@@ -106,6 +148,7 @@ nav {
       background-color: #ffffff; }
 
 .help-block {
+  text-align: center;
   font-size: 16px;
   color: #ff0d0d;
   margin-top: 10px; }
@@ -209,6 +252,9 @@ nav {
 .container {
   width: 1140px;
   margin: 0 auto; }
+  .container.my-account {
+    display: flex;
+    padding: 30px 0; }
 
 .logo {
   display: flex;
@@ -2039,98 +2085,104 @@ footer {
     background-color: #f16d7f;
     color: #ffffff; }
 
-form {
-  height: 342px; }
-  form.register-form .radio-buttons {
-    margin: 32px 0;
-    display: flex;
-    flex-direction: column; }
-    form.register-form .radio-buttons .radio-input {
-      position: relative; }
-      form.register-form .radio-buttons .radio-input .radio-input {
-        width: 14px;
-        height: 14px;
-        border: 2px solid #555555;
-        background-color: #ffffff !important;
-        cursor: pointer; }
-      form.register-form .radio-buttons .radio-input .radio-label {
-        cursor: pointer;
-        color: #222222;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        position: absolute;
-        top: 2px;
-        left: 28px; }
-  form.register-form .helpers {
-    margin-top: 23px; }
-    form.register-form .helpers .helpers-h5 {
+form.register-form .radio-buttons {
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column; }
+  form.register-form .radio-buttons .radio-input {
+    position: relative; }
+    form.register-form .radio-buttons .radio-input .radio-input {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #555555;
+      background-color: #ffffff !important;
       cursor: pointer; }
-      form.register-form .helpers .helpers-h5 .fas {
-        margin-right: 4px; }
-  form.login-form.my__account {
-    width: 100%;
-    height: 100%; }
-    form.login-form.my__account .buttons {
-      justify-content: center; }
-    form.login-form.my__account .form-h5 {
-      display: block;
-      margin-top: 25px; }
-  form.login-form .register_link {
-    cursor: pointer;
-    transition: color 0.3s;
-    color: #f16d7f;
-    text-decoration: underline;
-    margin: 10px; }
-    form.login-form .register_link:hover {
-      color: #e3455afc; }
-  form.login-form .forgot-psswd {
-    color: #222222;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 14px; }
-    form.login-form .forgot-psswd:hover {
-      color: #f16d7f; }
-  form.login-form .input-block {
-    margin-top: 27px; }
-    form.login-form .input-block .input-block-label {
-      display: block;
+    form.register-form .radio-buttons .radio-input .radio-label {
+      cursor: pointer;
       color: #222222;
       font-size: 12px;
       font-weight: 600;
-      line-height: 12px;
-      text-transform: uppercase; }
-      form.login-form .input-block .input-block-label .label-span {
-        color: #ff0d0d;
-        font-size: 17px;
-        font-weight: 400;
-        line-height: 17px;
-        margin-left: 3px; }
-    form.login-form .input-block .input-block-input {
-      width: 390px;
-      height: 45px;
-      border: 1px solid #eaeaea;
-      background-color: #ffffff;
-      padding: 0 15px;
-      margin-top: 16px;
-      margin-bottom: 9px; }
-      form.login-form .input-block .input-block-input.textarea {
-        padding: 10px; }
-      form.login-form .input-block .input-block-input.invalid {
-        border: 1px solid red;
-        box-sizing: border-box; }
-  form.login-form .required-info {
-    color: #ff0d0d;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 13px; }
-  form.login-form .buttons {
-    margin-top: 32px;
+      text-transform: uppercase;
+      position: absolute;
+      top: 2px;
+      left: 28px; }
+form.register-form .helpers {
+  margin-top: 23px; }
+  form.register-form .helpers .helpers-h5 {
+    cursor: pointer; }
+    form.register-form .helpers .helpers-h5 .fas {
+      margin-right: 4px; }
+form.login-form.my__account {
+  width: 100%;
+  height: 100%; }
+  form.login-form.my__account .buttons {
+    justify-content: center; }
+  form.login-form.my__account .form-h5 {
+    display: block;
+    margin-top: 25px; }
+form.login-form .register_link {
+  cursor: pointer;
+  transition: color 0.3s;
+  color: #f16d7f;
+  text-decoration: underline;
+  margin: 10px; }
+  form.login-form .register_link:hover {
+    color: #e3455afc; }
+form.login-form .forgot-psswd {
+  color: #222222;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px; }
+  form.login-form .forgot-psswd:hover {
+    color: #f16d7f; }
+form.login-form .input-block {
+  margin-top: 27px; }
+  form.login-form .input-block.edit-data {
     display: flex;
-    justify-content: unset;
-    align-items: center; }
-    form.login-form .buttons .btn {
-      margin-top: 0;
-      margin-right: 32px; }
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+    border: 1px solid #f7f7f7;
+    border-top: none;
+    padding: 0 150px; }
+  form.login-form .input-block .input-block-label {
+    display: block;
+    color: #222222;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 12px;
+    text-transform: uppercase; }
+    form.login-form .input-block .input-block-label .label-span {
+      color: #ff0d0d;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 17px;
+      margin-left: 3px; }
+  form.login-form .input-block .input-block-input {
+    width: 390px;
+    height: 45px;
+    border: 1px solid #eaeaea;
+    background-color: #ffffff;
+    padding: 0 15px;
+    margin-top: 16px;
+    margin-bottom: 9px; }
+    form.login-form .input-block .input-block-input.textarea {
+      padding: 10px;
+      width: 400px; }
+    form.login-form .input-block .input-block-input.invalid {
+      border: 1px solid red; }
+form.login-form .required-info {
+  color: #ff0d0d;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 13px; }
+form.login-form .buttons {
+  margin-top: 32px;
+  display: flex;
+  justify-content: unset;
+  align-items: center; }
+  form.login-form .buttons .btn {
+    margin-top: 0;
+    margin-right: 32px; }
 
 /*# sourceMappingURL=style.css.map */

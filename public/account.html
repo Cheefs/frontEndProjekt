@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <script src="scripts/main.js" defer></script>
+    <script src="scripts/account.js" defer></script>
     <title>Brand</title>
 </head>
 <body>
@@ -42,6 +43,7 @@
                     <span class="close">&times;</span>
                 </div>
                 <div class="modal__body">
+
                     <form class="login-form register my__account">
                         <div class="input-block">
                             <label class="input-block-label" for="usernameRegister">USERNAME<span class="label-span">*</span></label>
@@ -69,10 +71,26 @@
                             <a href="#" class="btn btn_register">REGISTER</a>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="modalHelp" class="modal hide">
+            <div class="modal-content modal__help modal_close">
+                <div class="modal__header">
+                    <h3 class="header_text">Success</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal__body">
+                    <p class="info_text">product has been added to your cart</p>
+                </div>
+                <div class="modal__footer">
+                    <i class="modal__btn btn_confirm">OK</i>
+                </div>
+            </div>
+        </div>
 
     <header>
         <div class="container header-flex">
@@ -450,19 +468,65 @@
 
     <div class="product-top-panel">
         <div class="container">
-            <h3 class="top-panel-h3"><a class="breadcrumbs-a" href="cart.html">Checkout</a></h3>
+            <h3 class="top-panel-h3">
+                <a class="breadcrumbs-a" href="account.html">My Account</a>
+            </h3>
             <nav class="breadcrumbs">
                 <a class="breadcrumbs-a" href="index.html">Home</a><span>/</span>
-                <a class="breadcrumbs-a" href="product.html">Product</a><span>/</span>
-                <a class="breadcrumbs-a" href="cart.html">Cart</a><span>/</span>
-                <a class="breadcrumbs-a now" href="#">Checkout</a>
+                <a class="breadcrumbs-a" href="#">My Account</a>
             </nav>
         </div>
     </div>
 
-    <div class="container">
+    <div class="container my-account">
+        <div class="nav__panel">
+            <div class="nav__element presonal active">PERSONAL INFO</div>
+        </div>
 
-     
+        <div class="my-data_container">
+
+                <!-- <form class="login-form">
+                     <div class="input-block edit-data">
+                         <label class="label input-block-label" for="usernameEdit">USERNAME</label>
+                         <input class="input-block-input" data-rule="username" type="text" id="usernameEdit">
+                     </div>
+                     <div class="input-block edit-data">
+                         <label class="label input-block-label" for="passwordEdit">NEW PASSWORD</label>
+                         <input class="input-block-input" data-rule="password" type="password" id="passwordEdit">
+                     </div>
+                     <div class="input-block edit-data">
+                        <label class="label input-block-label" for="passwordConfirm">RETYPE PASSWORD</label>
+                        <input class="input-block-input" data-rule="password" type="password" id="passwordConfirm">
+                    </div>
+                     <div class="input-block edit-data">
+                         <label class="label input-block-label" for="email-addresEdit">EMAIL ADDRESS</label>
+                         <input class="input-block-input" data-rule="email" type="email" id="email-addresEdit">
+                     </div>  
+                     <div class="input-block edit-data">
+                         <span class="edit_gender">GENDER</span>
+                         <div class="gender__block">
+                             <label class="label input-block-label" for="genderManEdit">MAN</label>
+                             <input class="input_checkbox man" value="man" type="checkbox" id="genderManEdit">
+                             <label class="label input-block-label" for="genderWomanEdit">WOMAN</label>
+                             <input class="input_checkbox woman" value="woman" type="checkbox" id="genderWomanEdit">
+                         </div>
+                     </div>  
+                     <div class="input-block edit-data">
+                         <label class="label input-block-label"  for="credit-cartEdit">CREDIT CARD</label>
+                         <input class="input-block-input" data-rule="card" type="text" id="credit-cartEdit">
+                     </div>  
+                     <div class="input-block edit-data">
+                         <label class="label input-block-label"  for="bioEdit">BIO</label>
+                         <textarea class="input-block-input textarea" data-rule="bio" id="bioEdit"></textarea>
+                     </div>    
+                     <div class="btn_save">
+                         <a href="#" class="btn btn_save">SAVE</a>
+                    </div>
+                </form>   -->
+
+            </div>  
+        </div>
+            
 
     </div>
 

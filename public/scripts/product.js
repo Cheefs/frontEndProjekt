@@ -1,10 +1,15 @@
 class Product {
-    constructor(id, name = 'EXCLUSIVE', price = 'SOLD', photo = 'no-photo', currency = '$') {
+    constructor(id, name = 'EXCLUSIVE', price = 'SOLD', photo = 'no-photo', currency = '$', size, color, category, type ) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.photo = photo;
         this.currency = currency;
+
+        this.size = size;
+        this.color = color;
+        this.category = category;
+        this.type = type;
     }
 
     render() {
@@ -45,7 +50,10 @@ class ProductsList {
 
     fetchItems() {
         return sendRequest(`${API_URL}/products?_start=${this.minProducts}&_end=${this.maxProducts}`).then((value) => {
-            this.products = value.map(product => new Product(product.id, product.name, product.price, product.photo, product.currency));
+            this.products = value.map(product => new Product(
+                product.id, product.name, product.price, product.photo, product.currency,
+                product.size, product.color, product.category, product.type
+            ));
             this.filterItems = this.products;
         });
     }
@@ -77,7 +85,6 @@ const $searchButton = document.querySelector('.search-button');
 
 $searchButton.addEventListener('click', (e) => {
     e.preventDefault();
-    console.log(products)
     products.filter($searchText.value);
     document.querySelector('.product-block').innerHTML = products.render();
 });
@@ -94,7 +101,16 @@ $products.addEventListener('click', (e) => {
         const name = $productData.querySelector('.name').textContent;
         const price = $productData.querySelector('.price_value').textContent;
         const photo = $productData.querySelector('.photo').style.backgroundImage.replace('url("','').replace('")','');
-        const product = new CartItem(id, name, price, photo);
+        const username = document.cookie.trim() !== '' ? document.cookie : 'guestUser';
+
+        const color = $productData.dataset.color;
+        const size = $productData.dataset.size;
+        const category = $productData.dataset.category;
+        const type = $productData.dataset.type;
+
+        const product = new CartItem(null, id, username, name, price, photo, size, color, category, type);
+
+        console.log(product)
 
         cart.addProduct(product);
     }

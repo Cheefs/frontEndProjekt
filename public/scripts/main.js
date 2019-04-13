@@ -1,4 +1,9 @@
+const GENDER_MAN = 'man';
+const GENDER_WOMAN = 'woman';
+
 const API_URL = 'http://localhost:3000';
+
+isGuest(); // 
 
 function sendRequest(url) {
     return fetch(url).then((response) => response.json());
@@ -11,19 +16,32 @@ class Cart {
     }
 
     fetchItems() {
-        const username = document.cookie.trim() !== '' ? document.cookie : 'guestUser';
-
-        return sendRequest(`${API_URL}/cart?username=${username}`).then((value) => {
+        const userid = document.cookie.trim() !== '' ? document.cookie : '0';
+        return sendRequest(`${API_URL}/cart?userid=${userid}`).then((value) => {
+            console.log(value)
             this.products = value.map(product => {
+                console.log(product)
+               return new CartItem(
 
-          
-                console.log(product);
-               return new CartItem(product.id, product.product_id, product.username, product.name, product.price, product.photo, product.count, product.currency);
+                   product.id, 
+                   product.product_id, 
+                   product.userid, 
+                   product.name, 
+                   product.price, 
+                   product.photo, 
+                   product.size,
+                   product.color,
+                   product.category, 
+                   product.type,
+                   product.count, 
+                   product.currency
+                );
             })
         });
     }
 
     render() {
+        console.log(this.products);
         const itemsHtmls = this.products.map(product => product.render());
         this.getCartPrice();
         this.getCartCount();
@@ -32,29 +50,30 @@ class Cart {
     }
 
     addProduct(product) {
-        console.log(product)
-        const username = document.cookie.trim() !== '' ? document.cookie : 'guestUser';
+        const userid = document.cookie.trim() !== '' ? document.cookie : '0';
+
         const promice = new Promise((resolve, reject) => {
             let isExists = false;
-         
+        
             for (var i = 0; i < this.products.length; i++) {
-
-                if (+this.products[i].id === +product.id) {
+                if (+this.products[i].product_id === +product.product_id) {
                     this.products[i].count++;
                     isExists = true;
-                   let usersProducts = sendRequest(`${API_URL}/cart?username=${username}&product_id=${+product.id}`);
-                    usersProducts = usersProducts.find((item) => item.product_id === +product.id);
-                    console.log(usersProducts)
-
-                    // fetch(`${API_URL}/cart?username=${username}&id=${+product.id}`, {
-                    //     method: 'GET',
-                    //     headers: {
-                    //       'Content-Type': 'application/json',
-                    //     },
-                    //     body: JSON.stringify({ count: this.products[i].count }),
-                    //   });
-                    // resolve();
-                    // break;
+                    sendRequest(`${API_URL}/cart?userid=${userid}&product_id=${+product.product_id}`).
+                    then((value) => {
+                        value.find((item) => { 
+                            if (+item.product_id === +product.product_id) {
+                                fetch(`${API_URL}/cart/${item.id}`, {
+                                    method: 'PATCH',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                        body: JSON.stringify({ count: ++item.count }),
+                                });
+                                resolve();
+                            }
+                        }); 
+                    }).then(()=> this.reload());
                 } 
             }
             
@@ -64,14 +83,12 @@ class Cart {
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                   
-                    body: JSON.stringify({username: username, product_id: +product.product_id, name: product.name, photo: product.photo, price: product.price }),
-                  }).then((response) => response.json()).then((item) => {
-                            const cartItem = new CartItem(item.id, item.product_id, item.username, item.name, item.price, item.photo, item.count, item.currency)
-                            this.products.push(cartItem);
-                            resolve();
-                  }
-                );
+                    body: JSON.stringify({ ...product}),
+                }).then((response) => response.json()).then((item) => {
+                    const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency)
+                    this.products.push(cartItem);
+                    resolve();
+                });
             }
         });
         promice.then(() => { 
@@ -92,7 +109,7 @@ class Cart {
                         },
                         body: JSON.stringify({ count: this.products[i].count }),
                     });
-               } else {
+                } else {
                    fetch(`${API_URL}/cart/${id}`, { method: 'DELETE' });
                    this.products.splice(i, 1);
                    $items[i].remove();
@@ -110,8 +127,9 @@ class Cart {
         const $cartCount = document.querySelector('.cart-items-total');
         let total = 0;
         this.products.forEach(e => {
-            total += +e.count;
+            total += e.count;
         });
+
         $cartCount.textContent = total;
     }
 
@@ -128,13 +146,19 @@ class Cart {
 }
 
 class CartItem {
-    constructor (id, product_id, username, name, price, photo, count = 1, currency = '$') {
+    constructor (id, product_id, userid, name, price, photo, size, color, category, type, count = 1, currency = "$") {
         this.id = id;
         this.product_id = product_id;
-        this.username = username;
+        this.userid = userid;
+
         this.name = name;
         this.price = price;
         this.photo = photo;
+
+        this.size = size;
+        this.color = color;
+        this.category = category;
+        this.type = type;
         this.count = count;
         this.currency = currency;
     }
@@ -213,11 +237,10 @@ window.addEventListener('click', (e) => {
         modalClose();
     } else if (e.target.classList.contains('my-account-btn')) {
         if (e.target.classList.contains('lk')) {
-            window.location.href = `${API_URL}/account`
+            window.location.href = `${API_URL}/account.html`
         } else {
             modalShow($modalDialog, $modal);
-        }
-       
+        }  
     }
 });
 
@@ -258,31 +281,38 @@ function modalClose() {
     const $help = document.querySelector('.help-block');
     $help.textContent = "";
     document.querySelector('.modal_login').classList.remove('hide');
-    document.querySelector('.modal_register').classList.add('hide')
+    document.querySelector('.modal_register').classList.add('hide');
+
+   setTimeout((e) => { window.location.reload(false);  },500);
 }
 
 function doValidateRegisterForm() {
     const validation = {
-        'username': /\d|\s|[^a-zA-Zа-яА-Я]/,
-        'password': /\w/,
+        'username': /\w+/,
+        'password': /\w+/,
         'email': /^[a-zA-Zа-яА-Я0-9]+?.[a-zA-Zа-яА-Я0-9]+\@[a-zA-Zа-яА-Я0-9]+\.[a-zA-Zа-яА-Я]{2,3}$/,
         'card': /\d{13,19}/,
-        'bio': /[a-zA-Zа-яА-Я0-9]+/,
+        'bio': /[a-zA-Zа-яА-Я0-9]+/
     };
+
+    const required = [
+        'username', 'password', 'email'
+    ];
 
     const newUser = [];
     let hasErors = false;
 
     Object.keys(validation).forEach(rule => {
         const fields = document.querySelectorAll('[data-rule="'+rule+'"]');
-        fields.forEach( field => {
+        fields.forEach(field => {
             if (validation[rule].test(field.value)) {
                 newUser[rule] = field.value;
                 field.classList.remove('invalid');
-            } else  {
-                hasErors = true;
-                console.log(field);
-                field.classList.add('invalid');
+            } else {
+                if (field.value.trim() === required.includes(rule)) {
+                    hasErors = true;
+                    field.classList.add('invalid');
+                }
             }
         });
     });
@@ -292,50 +322,34 @@ function doValidateRegisterForm() {
     });
     if (!hasErors) {
         createAccount(newUser);
-
-        /// login
     }
-
 }
-
 
 function createAccount(array) {
     var $textinputs = document.querySelectorAll('input[type=checkbox]');
     let gender = null;
 
-    [].filter.call($textinputs, e => {
+    [].filter.call($textinputs, (e) => {
         if (e.checked){
             gender = e.value
         }
     });
     array['gender'] = gender;
-
+    console.log(array);
     fetch(`${API_URL}/users/`, { method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ ...array }),
-    });
+    }).then(() =>  login({username: array['username'], password: array['password']}) );
 
+   
     modalClose();
     showHelpModal('регистрация прошла успешно');
-}
 
-function login(loginData) {
-    sendRequest(`${API_URL}/users`).then((data) => {
-        const user = data.find((user) => {
-            if (loginData.username === user.username && loginData.password === user.password) {
-                document.cookie = `${user.username}`;
-                return user;
-            }
-        }); 
-        if (user === undefined) {
-            const $help = document.querySelector('.help-block');
-            $help.textContent = 'Invalid User Name Or Password';
-        } else {
-            location.reload(false);
-        }
-    });
+ 
+    // document.cookie = `${array['id']}`;
+    // location.reload(false);
 }
 
 const $btnLogOut = document.querySelector('.btn-logout');
@@ -348,7 +362,6 @@ function logOut() {
     document.cookie ='';
     location.reload(false)
 }
-isGuest();
 
 function isGuest() {
     const $myAccount = document.querySelector('.my-account-btn');
@@ -359,8 +372,30 @@ function isGuest() {
         $logOut.classList.remove('hide');
 
     } else {
+        if (window.location.href.match('account') !== null ) {
+            window.location.href = 'index.html';
+        }
         $myAccount.textContent = 'Login';
         $myAccount.classList.remove('lk');
         $logOut.classList.add('hide');
     }
+}
+
+function login(loginData) {
+    console.log(loginData);
+    sendRequest(`${API_URL}/users`).then((data) => {
+        const user = data.find((user) => {
+            console.log(loginData.username === user.username && loginData.password === user.password);
+            if (loginData.username === user.username && loginData.password === user.password) {
+                document.cookie = `${user.id}`;
+                return user;
+            }
+        }); 
+        if (user === undefined) {
+            const $help = document.querySelector('.help-block');
+            $help.textContent = 'Invalid User Name Or Password';
+        } else {
+            location.reload(false);
+        }
+    });
 }
