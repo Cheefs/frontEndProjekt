@@ -1,9 +1,21 @@
 const GENDER_MAN = 'man';
 const GENDER_WOMAN = 'woman';
-
 const API_URL = 'http://localhost:3000';
 
-isGuest(); // 
+isGuest(); // проверяем гость ли пользователь
+const $browse = document.querySelector('.browse-container');
+
+$browse.addEventListener('click', (e) => {
+    document.querySelector('.browse-items').classList.toggle('hide');
+    e.preventDefault();
+});
+const $searchText = document.querySelector('.search-text');
+const $searchButton = document.querySelector('.search-button');
+
+$searchButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = 'product.html?name='+$searchText.value;
+});
 
 function sendRequest(url) {
     return fetch(url).then((response) => response.json());
@@ -18,11 +30,8 @@ class Cart {
     fetchItems() {
         const userid = document.cookie.trim() !== '' ? document.cookie : '0';
         return sendRequest(`${API_URL}/cart?userid=${userid}`).then((value) => {
-            console.log(value)
             this.products = value.map(product => {
-                console.log(product)
                return new CartItem(
-
                    product.id, 
                    product.product_id, 
                    product.userid, 
@@ -41,7 +50,6 @@ class Cart {
     }
 
     render() {
-        console.log(this.products);
         const itemsHtmls = this.products.map(product => product.render());
         this.getCartPrice();
         this.getCartCount();
@@ -51,12 +59,10 @@ class Cart {
 
     addProduct(product) {
         const userid = document.cookie.trim() !== '' ? document.cookie : '0';
-
         const promice = new Promise((resolve, reject) => {
             let isExists = false;
-        
             for (var i = 0; i < this.products.length; i++) {
-                if (+this.products[i].product_id === +product.product_id) {
+                if (+this.products[i].product_id === +product.product_id && this.products[i].color === product.color && this.products[i].size === product.size) {
                     this.products[i].count++;
                     isExists = true;
                     sendRequest(`${API_URL}/cart?userid=${userid}&product_id=${+product.product_id}`).
@@ -68,12 +74,12 @@ class Cart {
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
-                                        body: JSON.stringify({ count: ++item.count }),
+                                        body: JSON.stringify({ count: +item.count + +product.count }),
                                 });
                                 resolve();
                             }
                         }); 
-                    }).then(()=> this.reload());
+                    })
                 } 
             }
             
@@ -85,7 +91,7 @@ class Cart {
                     },
                     body: JSON.stringify({ ...product}),
                 }).then((response) => response.json()).then((item) => {
-                    const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency)
+                    const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency);
                     this.products.push(cartItem);
                     resolve();
                 });
@@ -127,7 +133,7 @@ class Cart {
         const $cartCount = document.querySelector('.cart-items-total');
         let total = 0;
         this.products.forEach(e => {
-            total += e.count;
+            total += +e.count;
         });
 
         $cartCount.textContent = total;
@@ -233,7 +239,7 @@ const $modalDialog = $modal.querySelector('.modal-content');
 window.addEventListener('click', (e) => {
     if (e.target.classList.contains('close') || e.target.classList.contains('btn_confirm') ) {
         modalClose()
-    } else if (e.target === $modal) {
+    } else if (e.target.classList.contains('modal')) {
         modalClose();
     } else if (e.target.classList.contains('my-account-btn')) {
         if (e.target.classList.contains('lk')) {
@@ -251,15 +257,6 @@ function showHelpModal(message = null) {
     const $modal = document.getElementById('modalHelp');
     const $modalDialog = $modal.querySelector('.modal-content');
     modalShow($modalDialog, $modal);
-
-    window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('close') || e.target.classList.contains('btn_confirm') ) {
-            modalClose()
-        }
-        if (e.target === $modal) {
-            modalClose($modalDialog, $modal);
-        }
-    });
 }
 
 function modalShow($dialog, $modal) {
@@ -316,14 +313,15 @@ function doValidateRegisterForm() {
             }
         });
     });
-    const $creditCartInput = document.getElementById('credit-cartRegister');
-    $creditCartInput.addEventListener('keyup', e => {
-        e.target.value = e.target.value.replace(/\D/g, "");
-    });
     if (!hasErors) {
         createAccount(newUser);
     }
 }
+
+const $creditCartInput = document.getElementById('credit-cartRegister');
+$creditCartInput.addEventListener('keyup', e => {
+    e.target.value = e.target.value.replace(/\D/g, "");
+});
 
 function createAccount(array) {
     var $textinputs = document.querySelectorAll('input[type=checkbox]');
@@ -331,11 +329,10 @@ function createAccount(array) {
 
     [].filter.call($textinputs, (e) => {
         if (e.checked){
-            gender = e.value
+            gender = e.value;
         }
     });
     array['gender'] = gender;
-    console.log(array);
     fetch(`${API_URL}/users/`, { method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -343,13 +340,8 @@ function createAccount(array) {
         body: JSON.stringify({ ...array }),
     }).then(() =>  login({username: array['username'], password: array['password']}) );
 
-   
     modalClose();
     showHelpModal('регистрация прошла успешно');
-
- 
-    // document.cookie = `${array['id']}`;
-    // location.reload(false);
 }
 
 const $btnLogOut = document.querySelector('.btn-logout');
@@ -360,7 +352,7 @@ $btnLogOut.addEventListener('click', (e) => {
 
 function logOut() {
     document.cookie ='';
-    location.reload(false)
+    location.reload(false);
 }
 
 function isGuest() {
@@ -382,10 +374,8 @@ function isGuest() {
 }
 
 function login(loginData) {
-    console.log(loginData);
     sendRequest(`${API_URL}/users`).then((data) => {
         const user = data.find((user) => {
-            console.log(loginData.username === user.username && loginData.password === user.password);
             if (loginData.username === user.username && loginData.password === user.password) {
                 document.cookie = `${user.id}`;
                 return user;

@@ -66,11 +66,11 @@ class User {
                 </div>  
                 <div class="input-block edit-data">
                     <label class="label input-block-label" for="credit-cartEdit">CREDIT CARD</label>
-                    <input value="${this.card}" class="input-block-input" data-rule-modify="card" type="text" id="credit-cartEdit">
+                    <input value="${this.card === undefined? '' : this.card}" class="input-block-input" data-rule-modify="card" type="text" id="credit-cartEdit">
                 </div>  
                 <div class="input-block edit-data">
                     <label class="label input-block-label"  for="bioEdit">BIO</label>
-                    <textarea class="input-block-input textarea" data-rule-modify="bio" id="bioEdit">${this.bio}</textarea>
+                    <textarea class="input-block-input textarea" data-rule-modify="bio" id="bioEdit">${this.bio === undefined? '' : this.bio}</textarea>
                 </div>    
                 <div class="btn_save">
                    <a href="#" class="btn btn_save">SAVE</a>
@@ -117,7 +117,7 @@ function doValidate() {
                 if(field.value !== confirm.value) {
                     hasErors = true;
                     field.classList.add('invalid');
-                    document.querySelector('.help-block.password_edit').textContent = 'passwords not mutch'
+                    document.querySelector('.help-block.password_edit').textContent = 'passwords not mutch';
                 } else {
                     updatedUser.password = field.value; 
                 }
@@ -162,7 +162,7 @@ function saveChanges(updatedUser) {
 
     [].filter.call($textinputs, (e) => {
         if (e.checked) {
-            updatedUser.gender = e.value
+            updatedUser.gender = e.value;
         }
     });
 

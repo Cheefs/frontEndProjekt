@@ -15,7 +15,9 @@ class Product {
     render() {
         return `<div class="product-item" data-size="${this.size}" data-color="${this.color}" data-type="${this.type}" data-category="${this.category}" >
                     <a href="single-page.html" class="item">
-                        <div class="item-photo photo" style="background-image:url(${this.photo})"></div>
+                        <div class="item-photo photo">
+                            <img class="photo_img" src="${this.photo}" data-id="${this.id}">
+                        </div>
                         <div class="item-text">
                             <p class="item-name name">${this.name}</p>
                             <div class="item-price price_value">${this.price}</div>
@@ -55,7 +57,11 @@ products.fetchItems().then(() => document.querySelector('.product-block').innerH
 
 const $products = document.querySelector('.product-block');
     $products.addEventListener('click', (e) => {
+
+        console.log(e.target);
     e.preventDefault();
+    
+
     if (e.target.parentElement.classList.contains('add-to-cart') || e.target.classList.contains('add-to-cart')) {
         let $productData = e.target.parentElement;
         if (e.target.parentElement.classList.contains('add-to-cart')) {
@@ -64,18 +70,17 @@ const $products = document.querySelector('.product-block');
         const id = $productData.querySelector('.add-to-cart').dataset.id;
         const name = $productData.querySelector('.name').textContent;
         const price = $productData.querySelector('.price_value').textContent;
-        const photo = $productData.querySelector('.photo').style.backgroundImage.replace('url("','').replace('")','');
-        const username = document.cookie.trim() !== '' ? document.cookie : 'guestUser';
+        const photo = $productData.querySelector('.photo_img').src;
+        const username = document.cookie.trim() !== '' ? document.cookie : '0';
 
         const color = $productData.dataset.color;
         const size = $productData.dataset.size;
         const category = $productData.dataset.category;
         const type = $productData.dataset.type;
 
-        console.log($productData);
-
-
         const product = new CartItem(null, id, username, name, price, photo, size, color, category, type);
         cart.addProduct(product);
+    } else if (e.target.classList.contains('photo_img')) {
+        window.location.href = `${API_URL}/single-page.html?id=${e.target.dataset.id}`
     }
 });

@@ -1,3 +1,10 @@
+window.addEventListener('load', (e)=> {
+    if (location.search.trim() !== '') {
+        $searchText.value = location.search.split('=')[1];
+        filterItems();
+    }
+});
+
 class Product {
     constructor(id, name = 'EXCLUSIVE', price = 'SOLD', photo = 'no-photo', currency = '$', size, color, category, type ) {
         this.id = id;
@@ -15,7 +22,9 @@ class Product {
     render() {
         return `<div class="product" data-id="${this.id}">
                     <a href="single-page.html" class="photo-link">
-                        <div class="photo" style="background:url(${this.photo}) no-repeat;"></div>
+                        <div class="photo" >
+                            <img class="photo_img" src="${this.photo}" >
+                        </div>
                     </a>
                     <div class="buttons">
                         <a href="#" class="product-btn add-to-cart" data-id="${this.id}">
@@ -80,14 +89,10 @@ class ProductsList {
 const products = new ProductsList();
 products.fetchItems().then(() => document.querySelector('.product-block').innerHTML = products.render());
 
-const $searchText = document.querySelector('.search-text');
-const $searchButton = document.querySelector('.search-button');
-
-$searchButton.addEventListener('click', (e) => {
-    e.preventDefault();
+function filterItems() {
     products.filter($searchText.value);
     document.querySelector('.product-block').innerHTML = products.render();
-});
+}
 
 const $products = document.querySelector('.product-block');
 $products.addEventListener('click', (e) => {
@@ -100,18 +105,16 @@ $products.addEventListener('click', (e) => {
         const id = $productData.dataset.id;
         const name = $productData.querySelector('.name').textContent;
         const price = $productData.querySelector('.price_value').textContent;
-        const photo = $productData.querySelector('.photo').style.backgroundImage.replace('url("','').replace('")','');
-        const username = document.cookie.trim() !== '' ? document.cookie : 'guestUser';
+        const photo = $productData.querySelector('.photo_img').src;
+
+        const userid = document.cookie.trim() !== '' ? document.cookie : '0';
 
         const color = $productData.dataset.color;
         const size = $productData.dataset.size;
         const category = $productData.dataset.category;
         const type = $productData.dataset.type;
 
-        const product = new CartItem(null, id, username, name, price, photo, size, color, category, type);
-
-        console.log(product)
-
+        const product = new CartItem(null, id, userid, name, price, photo, size, color, category, type);
         cart.addProduct(product);
     }
 });

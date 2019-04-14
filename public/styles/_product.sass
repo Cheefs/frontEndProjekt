@@ -419,6 +419,7 @@
     &:hover .photo-link
       filter: brightness(65%)
       transform: translateY(-10px)
+      background-color: #fefefe
 
     &:hover  .buttons
       display: flex
@@ -439,7 +440,13 @@
       .photo
         height: 100%
         width: 100%
-        background-position: bottom !important
+        overflow: hidden
+        //background-position: bottom !important
+        .photo_img
+          height: 100%
+          display: block
+          margin: 0 auto
+
 
     .buttons
       display: none
