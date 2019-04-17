@@ -20,11 +20,19 @@ $myData.addEventListener('click', (e) => {
         }
     } else if (e.target.classList.contains('btn_save')) {
         doValidate();
-    }  
+    } else if (e.target.classList.contains('admin__btn')) {
+        const target = e.target;
+        const id = target.parentElement.dataset.id;
+        if (target.classList.contains('btn_primarry')) {
+            user.moderate(id);
+        } else {
+            user.deleteReview(id);
+        }   
+    } 
 });
 
 class User {
-    constructor(id, username, password, gender, email, card, bio) {
+    constructor(id, username, password, gender, email, card, bio, role) {
         this.id = id;
         this.username = username; 
         this.password = password;
@@ -32,11 +40,11 @@ class User {
         this.email = email;
         this.card = card;
         this.bio = bio;
+        this.role = role;
     }
 
   render() {
-    return document.querySelector('.my-data_container').innerHTML = 
-        `<form class="login-form">
+    return`<form class="login-form">
                 <div class="input-block edit-data">
                     <label class="label input-block-label" for="usernameEdit" >USERNAME</label>
                     <input value="${this.username}" class="input-block-input" data-rule-modify="username" type="text" id="usernameEdit" >
@@ -77,7 +85,6 @@ class User {
             </div>
         </form>  `;
     }
-
     checkGender() {
         if (this.gender !== null) {
             document.getElementById(`${this.gender}`).checked = true;
@@ -85,13 +92,86 @@ class User {
     }
 }
 
-let userData =[];
-const user  = sendRequest(`${API_URL}/users?id=`+ document.cookie).then((value) => {
-    const data = value[0];
-    userData =  new User(data.id, data.username, data.password, data.gender, data.email, data.card, data.bio);
-    userData.render();
-    userData.checkGender();
-});
+
+class UserData {
+    constructor() {
+        this.user = {};
+        this.reviews = [];
+        this.isAdmin = false;
+    }
+
+    fetch () {
+      return  sendRequest(`${API_URL}/users?id=`+ document.cookie).then((value) => {
+            if (value.length > 0) {
+                const data = value[0];
+                this.user = new User(data.id, data.username, data.password, data.gender, data.email, data.card, data.bio, data.role);
+                this.isAdmin = (data.role === 'admin');
+                if (this.isAdmin) {
+                    this.fetchReviews();
+                }
+            } else {
+                document.cookie = '';
+            }
+        });
+    }
+    addReviewBlock() {
+        return `<div class="nav__element reviews">Reviews</div>`
+    }
+
+    render () {
+        document.querySelector('.my-data_container').innerHTML = this.user.render();
+        this.user.checkGender();
+    }
+    
+    fetchReviews() {
+        return sendRequest(`${API_URL}/reviews`).then((val) => {
+           this.reviews = val.map((rev) => new Review(rev.id, rev.username, rev.comment, rev.datetime, rev.status));
+           document.querySelector('.nav__panel').innerHTML += this.addReviewBlock();
+        });
+    }
+
+    renderRewiews() {
+        const itemsHtmls = this.reviews.map(rev => rev.render());
+        document.querySelector('.my-data_container').innerHTML = itemsHtmls.join('');
+
+        const $listReviews = document.querySelectorAll('.helper');
+        for (var i = 0; i < $listReviews.length; i++) {
+            const isNew = $listReviews[i].classList.contains('new');
+            const id = $listReviews[i].parentElement.dataset.id;
+            $listReviews[i].innerHTML = user.addAdminButtons( id, isNew );
+        }
+    }
+    
+    addAdminButtons(id, isNew) {
+        return `<div class="admin__controls" data-id="${id}">
+                    ${ isNew? '<span class="admin__btn btn_primarry" data> Accept </span> ': ''}
+                <span class="admin__btn btn_danger"> Delete </span>  
+            </div>`
+    }
+
+    moderate(id) {
+        fetch(`${API_URL}/reviews/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            }, body: JSON.stringify({ status: 'moderate' }),
+        }).then(() => this.fetchReviews().then(() => this.renderRewiews()) );
+    }
+
+    deleteReview(id) {
+        fetch(`${API_URL}/reviews/${id}`, {
+             method: 'DELETE'
+        }).then(() => { 
+            this.reviews = this.reviews.filter((e) => +e.id !== +id);
+            this.renderRewiews();
+        });
+    }
+}
+
+
+
+const user  = new UserData();
+user.fetch().then(() => user.render());
 
 function doValidate() {
     const validation = {
@@ -175,4 +255,18 @@ function saveChanges(updatedUser) {
     });
    showHelpModal('All Chenges Saved');
 }
-  
+
+
+const $navPanel = document.querySelector('.nav__panel');
+$navPanel.addEventListener('click', (e) => {
+    if (e.target.classList.contains('nav__element')) {
+        document.querySelector('.nav__element.active').classList.toggle('active');
+        e.target.classList.toggle('active');
+
+        if (e.target.classList.contains('reviews')) {
+            user.renderRewiews();
+        } else if (e.target.classList.contains('presonal')) {
+            user.render();
+        }
+    }
+});

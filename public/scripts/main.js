@@ -14,11 +14,47 @@ const $searchButton = document.querySelector('.search-button');
 
 $searchButton.addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.href = 'product.html?name='+$searchText.value;
+    window.location.href = 'product.html?name=' + $searchText.value;
 });
 
 function sendRequest(url) {
     return fetch(url).then((response) => response.json());
+}
+
+class Review {
+    constructor(id, username, comment, date, status) {
+        this.id = id;
+        this.username = username;
+        this.comment = comment;
+        this.date = date;
+        this.status = status;
+    }
+
+    render() {
+         return ` <div class="comment" data-id="${this.id}">
+                    <div class="comment__autor">${this.username} AT &nbsp; ${this.date} <span class='review_status'>${this.status === 'moderate' ? 'moderate' : 'new'} </span></div>
+                    <div class="comment__text">${this.comment}</div>
+                    <div class="helper ${this.status}"></div>
+                </div>`;
+    }
+
+    add() {
+        const comment = document.querySelector('.comment__input').value;
+        const id = document.querySelector('.product-btn').dataset.id;
+        const userId = document.cookie === null? 0 : document.cookie;
+        let dateTime = new Date();
+        dateTime = dateTime.toISOString().split('.')[0].replace(/[a-zA-Z]/g,' ');
+    
+      return  sendRequest(`${API_URL}/users?id=${userId}`).then((value) => {
+            const username = value.length > 0? value[0].username : 'guest';
+            fetch(`${API_URL}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }, body: JSON.stringify({ product_id: id, username: username, comment: comment, datetime: dateTime, status: 'new' }),
+            });
+        });
+    }
 }
 
 class Cart {
@@ -30,22 +66,10 @@ class Cart {
     fetchItems() {
         const userid = document.cookie.trim() !== '' ? document.cookie : '0';
         return sendRequest(`${API_URL}/cart?userid=${userid}`).then((value) => {
-            this.products = value.map(product => {
-               return new CartItem(
-                   product.id, 
-                   product.product_id, 
-                   product.userid, 
-                   product.name, 
-                   product.price, 
-                   product.photo, 
-                   product.size,
-                   product.color,
-                   product.category, 
-                   product.type,
-                   product.count, 
-                   product.currency
-                );
-            })
+            this.products = value.map(product => new CartItem (product.id,  product.product_id, product.userid, 
+                   product.name, product.price,  product.photo, product.size, product.color,product.category, product.type,product.count, product.currency
+                )
+            );
         });
     }
 
@@ -333,6 +357,7 @@ function createAccount(array) {
         }
     });
     array['gender'] = gender;
+    array['role'] = "user";
     fetch(`${API_URL}/users/`, { method: 'POST',
         headers: {
             'Content-Type': 'application/json',

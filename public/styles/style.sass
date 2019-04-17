@@ -23,20 +23,64 @@ nav
 .hide
   display: none !important
 
+.admin__controls
+  display: flex
+  justify-content: center
+  .admin__btn
+    display: block
+    border: 1px solid transparent
+    background-color: white
+    border-radius: 0 3px 3px 0
+    color: white
+    text-transform: uppercase
+    font-weight: bold
+    cursor: pointer
+    font-size: 12px
+    padding: 2px 6px
+    margin: 0 2px
+    transition: 0.5s
+
+    &.btn_primarry
+      border: 1px solid $colorGray-middle
+      background-color: $colorGray-middle
+      &:hover
+        border: 1px solid $colorGray-middle
+        background-color: white
+        color: $colorGray-middle
+
+    &.btn_danger
+      border: 1px solid #f16d7f
+      background-color: #f16d7f
+      &:hover
+        border: 1px solid #f16d7f
+        background-color: white
+        color: #f16d7f
+.review_status
+  font-size: 15px
+  font-weight: bold
+  position: absolute
+  right: 10px
+  top: 3px
+  color: green
+
 .nav__panel
   width: 30%
   border-left: 1px solid #f7f7f7
+  //transition: 1s
   .nav__element
+    transition: 0.5s
+    margin: 5px
     display: flex
     align-items: center
     justify-content: center
     padding: 20px
     background-color: #f8f8f8
     color: #222222
+    border: 1px solid transparent
     cursor: pointer
     &.active
       color: $colorPink
-      border: 1px solid $colorPink
+      border-color: $colorPink
     &:hover
       color: $colorPink-hover
 
@@ -359,11 +403,11 @@ header
           display: flex
           border-bottom: solid $minBorder-width #ededed
 
-          .item-photo
-            transition: 1s
-            &:hover
-              transform: skew(-3deg)
-              box-shadow: $colorGray-middle 1px 1px 20px 0
+          //.item-photo
+          //  transition: 1s
+          //  &:hover
+          //    transform: skew(-3deg)
+          //    box-shadow: $colorGray-middle 1px 1px 20px 0
           .item-container
             width: 144px
             display: flex
@@ -394,10 +438,15 @@ header
             span i:hover
               color: #ff7d00
 
-      .item-photo
+      .cart__photo
         width: 72px
         height: 85px
-        margin-bottom: 16px
+        overflow: hidden
+        display: flex
+        justify-content: center
+        .item-photo
+          height: 100%
+          margin-bottom: 16px
 
     .cart-items-total
       position: absolute

@@ -1,12 +1,13 @@
 {
   "users": [
     {
-      "username": "Cheef2",
-      "password": "1234",
-      "email": "123@mail.ru",
+      "username": "admin",
+      "password": "admin",
+      "email": "admin@admin.ad",
       "card": "",
-      "bio": "qweqwe asadas dasdasdasdasd",
+      "bio": "admin",
       "gender": "man",
+      "role": "admin",
       "id": 1
     },
     {
@@ -14,6 +15,7 @@
       "password": "cheef",
       "email": "cheef@cheef.ch",
       "gender": "man",
+      "role": "user",
       "id": 2
     }
   ],
@@ -47,17 +49,31 @@
       "currency": "$"
     },
     {
-      "id": 3,
-      "product_id": 2,
+      "id": 7,
+      "product_id": 3,
       "userid": "2",
-      "name": "People",
-      "price": "142.00",
-      "photo": "images/Layer_4.jpg",
-      "size": "XXL",
-      "color": "yellow",
+      "name": "ZANGO",
+      "price": "52.00",
+      "photo": "images/Layer_44.jpg",
+      "size": "XL",
+      "color": "black",
       "category": "shirt",
       "type": "man",
-      "count": "1",
+      "count": 2,
+      "currency": "$"
+    },
+    {
+      "id": 8,
+      "product_id": 19,
+      "userid": "0",
+      "name": "Moschino Cheap And Chic",
+      "price": "561",
+      "photo": "images/woman_1.png",
+      "size": "L",
+      "color": "red",
+      "category": "pants",
+      "type": "woman",
+      "count": 1,
       "currency": "$"
     }
   ],
@@ -369,6 +385,24 @@
       "material": "cotton",
       "desc": "Compellingly actualize fully researched processes before proactive outsourcing. Progressively syndicate collaborative architectures before cutting-edge services. Completely visualize parallel core competencies rather than exceptional portals. ",
       "mark": "none"
+    }
+  ],
+  "reviews": [
+    {
+      "product_id": "13",
+      "username": "cheef",
+      "comment": "trrtrtrtr",
+      "datetime": "2019-04-17 12:31:58",
+      "status": "moderate",
+      "id": 1
+    },
+    {
+      "product_id": "13",
+      "username": "admin",
+      "comment": "awdasdfasdasd",
+      "datetime": "2019-04-17 14:44:31",
+      "status": "moderate",
+      "id": 2
     }
   ]
 }

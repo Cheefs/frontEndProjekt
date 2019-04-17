@@ -45,12 +45,13 @@
       height: 100%
 
 .product-info
-  width: 1141px
+  width: 1140px
   height: 1302px
   border: 1px solid #eaeaea
   background-color: #ffffff
   margin-top: -100px
   position: relative
+  box-sizing: border-box
 
   .product-desc
     text-align: center
@@ -254,3 +255,68 @@
       line-height: 20px
       text-transform: $textTransform
       margin-bottom: 72px
+
+
+
+.container
+  &.comments
+    //height: 50px
+    border: 1px solid #eaeaea
+    border-collapse: collapse
+    border-top: none
+    box-sizing: border-box
+
+    .header
+      text-align: center
+      color: #4d4d4d
+      font-size: 18px
+      font-weight: 600
+      line-height: 24px
+      text-transform: uppercase
+      cursor: pointer
+      transition: 0.6s
+      &:hover
+        transform: scale(1.2)
+        color: $colorPink-hover
+    .product__comments
+      border-top: 1px solid #eaeaea
+
+
+    .new__comment
+      display: flex
+      margin-bottom: 20px
+      .comment__text
+        height: 45px
+        border: 1px solid #eaeaea
+        background-color: #ffffff
+        padding: 10px
+        width: 85%
+        margin: 0
+        margin-left: 50px
+        resize: none
+      .add_button
+        border: 1px solid $colorPink
+        background-color: $colorPink
+        border-radius: 0 3px 3px 0
+        color: white
+        text-transform: uppercase
+        font-weight: bold
+        cursor: pointer
+        &:hover
+          background-color: $colorPink-hover
+          border-color: $colorPink-hover
+
+.comment
+  border: 1px solid #f3e4e6
+  border-radius: 4px
+  margin: 30px
+  .comment__autor
+    position: relative
+    text-align: center
+    padding: 5px 10px
+    background-color: #f3e4e6
+    font-size: 12px
+    border-bottom: 1px solid #f1ccd0
+    color: #070707
+  .comment__text
+    padding: 10px

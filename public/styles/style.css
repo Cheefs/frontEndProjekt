@@ -85,20 +85,62 @@ nav {
 .hide {
   display: none !important; }
 
+.admin__controls {
+  display: flex;
+  justify-content: center; }
+  .admin__controls .admin__btn {
+    display: block;
+    border: 1px solid transparent;
+    background-color: white;
+    border-radius: 0 3px 3px 0;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+    margin: 0 2px;
+    transition: 0.5s; }
+    .admin__controls .admin__btn.btn_primarry {
+      border: 1px solid #646464;
+      background-color: #646464; }
+      .admin__controls .admin__btn.btn_primarry:hover {
+        border: 1px solid #646464;
+        background-color: white;
+        color: #646464; }
+    .admin__controls .admin__btn.btn_danger {
+      border: 1px solid #f16d7f;
+      background-color: #f16d7f; }
+      .admin__controls .admin__btn.btn_danger:hover {
+        border: 1px solid #f16d7f;
+        background-color: white;
+        color: #f16d7f; }
+
+.review_status {
+  font-size: 15px;
+  font-weight: bold;
+  position: absolute;
+  right: 10px;
+  top: 3px;
+  color: green; }
+
 .nav__panel {
   width: 30%;
   border-left: 1px solid #f7f7f7; }
   .nav__panel .nav__element {
+    transition: 0.5s;
+    margin: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     background-color: #f8f8f8;
     color: #222222;
+    border: 1px solid transparent;
     cursor: pointer; }
     .nav__panel .nav__element.active {
       color: #f16d7f;
-      border: 1px solid #f16d7f; }
+      border-color: #f16d7f; }
     .nav__panel .nav__element:hover {
       color: #e3455afc; }
 
@@ -388,11 +430,6 @@ header {
           margin-top: 16px;
           display: flex;
           border-bottom: solid 1px #ededed; }
-          header .header-right .cart-items .top-block .in-cart-item .item-photo {
-            transition: 1s; }
-            header .header-right .cart-items .top-block .in-cart-item .item-photo:hover {
-              transform: skew(-3deg);
-              box-shadow: #646464 1px 1px 20px 0; }
           header .header-right .cart-items .top-block .in-cart-item .item-container {
             width: 144px;
             display: flex;
@@ -417,10 +454,15 @@ header {
               text-transform: uppercase; }
             header .header-right .cart-items .top-block .in-cart-item .item-container span i:hover {
               color: #ff7d00; }
-      header .header-right .cart-items .item-photo {
+      header .header-right .cart-items .cart__photo {
         width: 72px;
         height: 85px;
-        margin-bottom: 16px; }
+        overflow: hidden;
+        display: flex;
+        justify-content: center; }
+        header .header-right .cart-items .cart__photo .item-photo {
+          height: 100%;
+          margin-bottom: 16px; }
     header .header-right .cart-items-total {
       position: absolute;
       width: 18px;
@@ -1625,12 +1667,13 @@ footer {
       height: 100%; }
 
 .product-info {
-  width: 1141px;
+  width: 1140px;
   height: 1302px;
   border: 1px solid #eaeaea;
   background-color: #ffffff;
   margin-top: -100px;
-  position: relative; }
+  position: relative;
+  box-sizing: border-box; }
   .product-info .product-desc {
     text-align: center;
     width: 642px;
@@ -1800,6 +1843,64 @@ footer {
       line-height: 20px;
       text-transform: uppercase;
       margin-bottom: 72px; }
+
+.container.comments {
+  border: 1px solid #eaeaea;
+  border-collapse: collapse;
+  border-top: none;
+  box-sizing: border-box; }
+  .container.comments .header {
+    text-align: center;
+    color: #4d4d4d;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.6s; }
+    .container.comments .header:hover {
+      transform: scale(1.2);
+      color: #e3455afc; }
+  .container.comments .product__comments {
+    border-top: 1px solid #eaeaea; }
+  .container.comments .new__comment {
+    display: flex;
+    margin-bottom: 20px; }
+    .container.comments .new__comment .comment__text {
+      height: 45px;
+      border: 1px solid #eaeaea;
+      background-color: #ffffff;
+      padding: 10px;
+      width: 85%;
+      margin: 0;
+      margin-left: 50px;
+      resize: none; }
+    .container.comments .new__comment .add_button {
+      border: 1px solid #f16d7f;
+      background-color: #f16d7f;
+      border-radius: 0 3px 3px 0;
+      color: white;
+      text-transform: uppercase;
+      font-weight: bold;
+      cursor: pointer; }
+      .container.comments .new__comment .add_button:hover {
+        background-color: #e3455afc;
+        border-color: #e3455afc; }
+
+.comment {
+  border: 1px solid #f3e4e6;
+  border-radius: 4px;
+  margin: 30px; }
+  .comment .comment__autor {
+    position: relative;
+    text-align: center;
+    padding: 5px 10px;
+    background-color: #f3e4e6;
+    font-size: 12px;
+    border-bottom: 1px solid #f1ccd0;
+    color: #070707; }
+  .comment .comment__text {
+    padding: 10px; }
 
 .cart-container {
   height: 500px;

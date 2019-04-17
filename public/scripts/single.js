@@ -180,7 +180,6 @@ $productContainer.addEventListener('click', (e) => {
        let size = document.querySelector('.select_size').selectedIndex;
        size = sizeAvailable[size].value;
 
-       console.log(size)
        const colorsAvailable = document.querySelector('.select_color').options;
        let color = document.querySelector('.select_color').selectedIndex;
        color = colorsAvailable[color].value;
@@ -192,7 +191,6 @@ $productContainer.addEventListener('click', (e) => {
                 value[0].photo, size, color, value[0].category, value[0].type, count
             );
             cart.addProduct(product);
-
         });
     }
 });
@@ -204,23 +202,87 @@ const $products = document.querySelector('.product-container');
     e.preventDefault();
     if (e.target.parentElement.classList.contains('add-to-cart') || e.target.classList.contains('add-to-cart')) {
         let $productData = e.target.parentElement.parentElement.parentElement;
- 
-        const id = $productData.querySelector('.add-to-cart').dataset.id;
-        const name = $productData.querySelector('.name').textContent;
-        const price = $productData.querySelector('.price_value').textContent;
-        const photo = $productData.querySelector('.photo_img').src;
-       
+        const id = e.target.classList.contains('add-to-cart')? e.target.dataset.id : $productData.querySelector('.add-to-cart').dataset.id;
+        sendRequest(`${API_URL}/products?id=${id}`).then((value) => {
+            const product = new CartItem(null, value[0].id, username, value[0].name, value[0].price, 
+                value[0].photo, value[0].size, value[0].color, value[0].category, value[0].type, value[0].count
+            );
+            cart.addProduct(product);
+        });
 
-        const color = $productData.dataset.color;
-        const size = $productData.dataset.size;
-        const category = $productData.dataset.category;
-        const type = $productData.dataset.type;
-
-        const product = new CartItem(null, id, username, name, price, photo, size, color, category, type);
-        cart.addProduct(product);
     } else if (e.target.classList.contains('photo_img')) {
         window.location.href = `${API_URL}/single-page.html?id=${e.target.dataset.id}`;
     }
 });
 
+// class Review {
+//     constructor(id, username, comment, date, status) {
+//         this.id = id;
+//         this.username = username;
+//         this.comment = comment;
+//         this.date = date;
+//         this.status = status;
+//     }
 
+//     render() {
+//          return ` <div class="comment">
+//                     <div class="comment__autor">${ this.username } AT &nbsp; ${this.date}</div>
+//                     <div class="comment__text">${ this.comment }</div>
+//                 </div>`;
+//     }
+
+//     add() {
+//         const comment = document.querySelector('.comment__input').value;
+//         const id = document.querySelector('.product-btn').dataset.id;
+//         const userId = document.cookie === null? 0 : document.cookie;
+//         let dateTime = new Date();
+//         dateTime = dateTime.toISOString().split('.')[0].replace(/[a-zA-Z]/g,' ');
+    
+//       return  sendRequest(`${API_URL}/users?id=${userId}`).then((value) => {
+//             const username = value.length > 0? value[0].username : 'guest';
+//             fetch(`${API_URL}/reviews`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 }, body: JSON.stringify({ product_id: id, username: username, comment: comment, datetime: dateTime, status: 'new' }),
+//             });
+//         });
+//     }
+// }
+
+class ReviewsList {
+    constructor() {
+        this.reviews = [];
+        this.user = {};
+    }
+
+    fetch() {
+        return sendRequest(`${API_URL}/reviews?status=moderate`).then((value) => {
+            this.reviews = value.map((rev) => new Review(rev.id, rev.username, rev.comment, rev.datetime, rev.status));
+        });
+    }
+
+    render() {
+        const itemsHtmls = this.reviews.map(rev => rev.render());
+        return itemsHtmls.join('');
+    }
+
+    init() {
+      return  this.fetch().then(() => document.querySelector('.product__comments').innerHTML = this.render());
+    }
+}
+
+const reviewList = new ReviewsList();
+reviewList.init();
+
+const $btnAddComment = document.querySelector('.add_button');
+
+$btnAddComment.addEventListener('click', (e) => {
+    const rev = new Review();
+    rev.add().then(() => {
+        reviewList.init();
+        document.querySelector('.comment__input').value = '';
+
+        showHelpModal('ваш отзыв отправлен на модерацию');
+    });
+});
