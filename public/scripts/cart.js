@@ -5,111 +5,82 @@ class CartPage {
     }
 
     fetchItems() {
-        return sendRequest(`${API_URL}/cart`).then((value) => {
+        const userid = document.cookie.trim() !== '' ? document.cookie : '0';
+        return sendRequest(`${API_URL}/cart?userid=${userid}`).then((value) => {
             this.products = value.map(product =>
                 new Item( product.id, product.name, product.price, product.photo, product.count, product.currency, product.size, product.color));
         });
     }
 
     render() {
-        const itemsHtmls = this.products.map(product => product.render());
+        const itemsHtmls = this.products.map(product => product.render() );
         this.getCartPrice();
         this.getCartCount();
 
         return itemsHtmls.join('');
     }
 
-    addProduct(product) {
-        const promice = new Promise((resolve, reject) => {
-            let isExists = false;
-            for (var i = 0; i < this.products.length; i++) {
-                if (+this.products[i].id === +product.id) {
-                    this.products[i].count++;
-                    isExists = true;
-                    fetch(`/cart/${product.id}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ count: this.products[i].count }),
-                    });
-                    resolve();
-                    break;
-                }
-            }
-            if (!isExists) {
-                fetch('/cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({id: +product.id, name: product.name, photo: product.photo, price: product.price }),
-                }).then((response) => response.json()).then((item) => {
-                        const cartItem = new Item(item.id, item.name, item.price, item.photo);
-                        this.products.push(cartItem);
-                        resolve();
-                    }
-                );
-            }
-            this.reload();
-        });
-        promice.then(() => {
-            showHelpModal();
-            this.reload();
-        });
-    }
-    removeItem(id) {
-        let $items = document.getElementsByClassName('in-cart-item');
-        for (var i = 0; i < $items.length; i++) {
-            let isLastProduct = true;
-            if (+this.products[i].id === +id) {
-                if (this.products[i].count > 1) {
-                    this.products[i].count--;
-                    fetch(`/cart/${id}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({count: this.products[i].count}),
-                    });
-
-                    isLastProduct = false;
-                }
-            }
-            if (+$items[i].dataset.id === +id) {
-                if (isLastProduct) {
-                    fetch(`/cart/${id}`, {method: 'DELETE'});
-                    this.products.splice(i, 1);
-                    $items[i].remove();
-                }
-            }
+    changeCount(id, value) {
+        const idx = this.products.findIndex((e) => +e.id === +id);
+        const count = this.products[idx].count;
+        if (!isNaN(value) && count !== value && value > 0)  {
+            this.products[idx].count = value;
+            fetch(`/cart/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({count: value }),
+            });
         }
         this.reload();
     }
+
+    deleteItem(id = null) {
+        if (id !== null) {
+           const idx = this.products.findIndex((e) => +e.id === +id);
+           let count = this.products[idx].count;
+            if (count > 1) {
+                fetch(`/cart/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({count: --count }),
+                });
+                this.products[idx].count = count;
+            } else {
+                fetch(`/cart/${id}`, {method: 'DELETE'});
+                this.products = this.products.filter((e) => +e.id !== +id);
+            }
+        } else {
+            this.products.forEach((e) => {
+                fetch(`/cart/${+e.id}`, {method: 'DELETE'});
+            });
+            this.products = [];
+        }
+        this.reload();
+    }
+
     reload() {
-        document.querySelector('.cart__container').innerHTML = this.render();
+        document.getElementById('cartContainer').innerHTML = this.render();
+        cart.fetchItems().then(() => document.querySelector('.cart__container').innerHTML = cart.render());
     }
 
     getCartCount() {
-        const $cartCount = document.querySelector('.cart-items-total');
-        let total = 0;
-        this.products.forEach(e => {
-            total += +e.count;
-        });
-        $cartCount.textContent = total;
+        return this.products.reduce((acc, item) => acc + item.count, 0);
     }
 
     getCartPrice() {
-        let price = 0;
-        const $priceBlock = document.querySelector('.cart-total__price');
-        this.products.forEach(e => {
-            if (!isNaN(+e.price)) {
-                price += +e.price * e.count;
-            }
-        });
-        $priceBlock.textContent = this.currency + price;
+        const $sub = document.querySelector('.subtotal_price');
+        const $grand = document.querySelector('.grandtotal_price');
+        const total = this.products.reduce((acc, item) => acc + item.price * item.count, 0);
+
+        $grand.textContent = this.currency + total; 
+        $sub.textContent = this.currency + total; 
     }
 }
+
 
 class Item {
     constructor (id, name, price, photo, count = 1, currency = '$', size, color, shipping = 'FREE') {
@@ -123,9 +94,6 @@ class Item {
         this.color = color;
         this.shipping = shipping;
     }
-//добавить стили  класс для img
-//     width: 100%;
-    // height: 100%;
     render () {
         return  `<div class="table-row">
                     <div class="product-details">
@@ -142,12 +110,13 @@ class Item {
                     </div>
                     <div class="buing-info">
                         <div class="buing-info-div">${this.currency} ${this.price}</div>
-                        <div class="buing-info-div">
-                            <input class="buing-info-input" type="number" value="${this.count}"></div>
+                        <div class="buing-info-div" data-id="${this.id}">
+                            <input class="buing-info-input" type="number" min="1" value="${this.count}">
+                        </div>
                         <div class="buing-info-div">${this.shipping}</div>
                         <div class="buing-info-div">${this.currency} ${this.getTotalPrice()} </div>
-                        <div class="buing-info-div">
-                            <i class="fas fa-times-circle"></i>
+                        <div class="buing-info-div ">
+                            <i class="fas fa-times-circle btn_delete_one" data-id="${this.id}"></i>
                         </div>
                     </div>
                 </div>`;
@@ -159,4 +128,28 @@ class Item {
 }
 
 const cartPage = new CartPage();
-cartPage.fetchItems().then(() => document.querySelector('.cart-container').innerHTML = cartPage.render());
+const $cartContainer = document.getElementById('cartContainer');
+const $btnClearCart = document.querySelector('.btn-delete-all');
+
+cartPage.fetchItems().then(() => $cartContainer.innerHTML = cartPage.render());
+
+$btnClearCart.addEventListener('click', (e) => {
+    showHelpModal('All products has removed from cart');
+    cartPage.deleteItem();
+});
+
+$cartContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn_delete_one')) {
+        const id = e.target.dataset.id;
+        if (!isNaN(id)) {
+            cartPage.deleteItem(id);
+        }
+    } 
+});
+
+$cartContainer.addEventListener('mouseout', (e) => {
+    if (e.target.classList.contains('buing-info-input')) {
+        const id = e.target.parentElement.dataset.id;
+        cartPage.changeCount(id, e.target.value);
+    }
+});

@@ -1965,6 +1965,7 @@ footer {
         font-weight: 400;
         line-height: 20px; }
         .cart-products .table-row .buing-info .buing-info-div .fa-times-circle {
+          cursor: pointer;
           color: #c0c0c0;
           font-size: 16px;
           text-transform: uppercase;
@@ -1972,14 +1973,13 @@ footer {
           .cart-products .table-row .buing-info .buing-info-div .fa-times-circle:hover {
             color: #e3455afc; }
       .cart-products .table-row .buing-info .buing-info-input {
-        height: 28px;
-        width: 32px;
+        height: 30px;
+        width: 50px;
         border: 1px solid #eaeaea;
         background-color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
         padding: 0 10px;
         color: #656565; }
 

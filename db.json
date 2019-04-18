@@ -59,7 +59,7 @@
       "color": "black",
       "category": "shirt",
       "type": "man",
-      "count": 2,
+      "count": "17",
       "currency": "$"
     },
     {
@@ -74,6 +74,34 @@
       "category": "pants",
       "type": "woman",
       "count": 1,
+      "currency": "$"
+    },
+    {
+      "id": 10,
+      "product_id": 1,
+      "userid": "2",
+      "name": "Mango",
+      "price": "52.00",
+      "photo": "images/Layer_43.jpg",
+      "size": "XXL",
+      "color": "red",
+      "category": "shirt",
+      "type": "man",
+      "count": "2",
+      "currency": "$"
+    },
+    {
+      "id": 11,
+      "product_id": "13",
+      "userid": "2",
+      "name": "Mango T-shirt",
+      "price": "52.00",
+      "photo": "http://localhost:3000/images/shirt4.jpg",
+      "size": "S",
+      "color": "white",
+      "category": "dress",
+      "type": "woman",
+      "count": "1",
       "currency": "$"
     }
   ],
