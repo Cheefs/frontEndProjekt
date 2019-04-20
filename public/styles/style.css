@@ -1197,9 +1197,6 @@ footer {
   justify-content: space-between; }
   .product-container .left-side {
     width: 243px; }
-    .product-container .left-side .spoiler-container:hover .triangle, .product-container .left-side .spoiler-container:hover .spoiler.open .triangle {
-      transform: rotate(-180deg) translate(1px, 5px);
-      color: #f16d7f; }
     .product-container .left-side .spoiler-container .spoiler {
       height: 37px;
       border-left: 5px solid #ef5b70;
@@ -1257,11 +1254,16 @@ footer {
         .product-container .left-side .spoiler-container .spoiler-items .spoiler-items-a:hover {
           background-color: #ddd;
           color: #f16d7f; }
-    .product-container .left-side .spoiler-container:hover .spoiler-items .spoiler-items-a {
+    .product-container .left-side .spoiler-container.open .triangle, .product-container .left-side .spoiler-container.open .spoiler.open .triangle {
+      transform: rotate(-180deg) translate(1px, 5px);
+      color: #f16d7f; }
+    .product-container .left-side .spoiler-container.open .spoiler-items .spoiler-items-a {
       animation: spoiler-items-opacity 0.5s linear forwards, spoiler-items-height 0.5s linear forwards; }
   .product-container .right-side {
     width: 848px; }
     .product-container .right-side .product-filters-block {
+      -moz-user-select: none;
+      user-select: none;
       margin-bottom: 51px; }
       .product-container .right-side .product-filters-block .filters {
         width: 100%;
@@ -1372,13 +1374,12 @@ footer {
             border-radius: 3px;
             background-color: #f0f0f0; }
             .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value {
-              width: 124px;
               height: 6px;
               background-color: #f16d7f;
               display: flex;
               align-items: center;
               position: relative;
-              margin-left: 23px;
+              margin-left: 0;
               margin-top: 24px; }
               .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value .input-btn {
                 cursor: pointer;
@@ -1389,11 +1390,26 @@ footer {
                 .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value .input-btn:hover {
                   background-color: #e3455afc; }
                 .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value .input-btn.left {
-                  position: absolute;
-                  left: -1px; }
+                  position: absolute; }
+                  .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value .input-btn.left .progress__overflow {
+                    position: relative;
+                    height: 10px;
+                    display: block;
+                    width: 111px;
+                    background-color: #ffffffc7;
+                    top: 2px;
+                    right: 110px; }
                 .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value .input-btn.right {
-                  position: absolute;
-                  right: -1px; }
+                  position: absolute; }
+                  .product-container .right-side .product-filters-block .filters .price-filter .price-input .input-bar .input-value .input-btn.right .progress__overflow {
+                    position: relative;
+                    height: 10px;
+                    display: block;
+                    width: 250px;
+                    background-color: #ffffffc7;
+                    top: 2px;
+                    /* z-index: 20223213; */
+                    left: 14px; }
           .product-container .right-side .product-filters-block .filters .price-filter .price-input .price-range {
             display: flex;
             justify-content: space-between;
@@ -1452,10 +1468,9 @@ footer {
             outline: none; }
             .product-container .right-side .product-filters-block .sorting .sort-container .select-condition:hover {
               background-color: #ddd; }
-    .product-container .right-side .product-block {
+    .product-container .right-side .product-block .product__page {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center; }
+      flex-wrap: wrap; }
     .product-container .right-side .bottom {
       height: 44px;
       display: flex;

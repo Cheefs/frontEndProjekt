@@ -83,68 +83,54 @@ class Cart {
 
     addProduct(product) {
         const userid = document.cookie.trim() !== '' ? document.cookie : '0';
-        const promice = new Promise((resolve, reject) => {
-            let isExists = false;
-            for (var i = 0; i < this.products.length; i++) {
-                if (+this.products[i].product_id === +product.product_id && this.products[i].color === product.color && this.products[i].size === product.size) {
-                    this.products[i].count++;
-                    isExists = true;
-                    sendRequest(`${API_URL}/cart?userid=${userid}&product_id=${+product.product_id}`).
-                    then((value) => {
-                        value.find((item) => { 
-                            if (+item.product_id === +product.product_id) {
-                                fetch(`${API_URL}/cart/${item.id}`, {
-                                    method: 'PATCH',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                        body: JSON.stringify({ count: +item.count + +product.count }),
-                                });
-                                resolve();
-                            }
-                        }); 
-                    })
-                } 
-            }
-            
-            if (!isExists) {
-                fetch(`${API_URL}/cart`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ ...product}),
-                }).then((response) => response.json()).then((item) => {
-                    const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency);
-                    this.products.push(cartItem);
-                    resolve();
-                });
-            }
-        });
-        promice.then(() => { 
-            showHelpModal();
-            this.reload();
-        });
+        const idx = this.products.findIndex((e) => +e.product_id === +product.product_id);
+        if (idx !== -1) {
+            this.products[idx].count++;
+            sendRequest(`${API_URL}/cart?userid=${userid}&product_id=${+product.product_id}`).
+            then((value) => {
+                value.find((item) => { 
+                    if (+item.product_id === +product.product_id) {
+                        fetch(`${API_URL}/cart/${item.id}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                                body: JSON.stringify({ count: this.products[idx].count }),
+                        });
+                    }
+                }); 
+            })
+
+        } else {
+            fetch(`${API_URL}/cart`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...product}),
+            }).then((response) => response.json()).then((item) => {
+                const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency);
+                this.products.push(cartItem);
+            });
+
+        }
+        showHelpModal();
+        this.reload();
     }
 
     removeItem(id) {
-        let $items = document.getElementsByClassName('in-cart-item');
-        for (var i = 0; i < $items.length; i++) {
-            if (+this.products[i].id === +id) {
-               if (this.products[i].count > 1) {
-                    this.products[i].count --;
+        const idx = this.products.findIndex((e) => +e.id === +id);
+        if (this.products[idx].count > 1) {
+            this.products[idx].count --;
                     fetch(`${API_URL}/cart/${id}`, { method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ count: this.products[i].count }),
+                        body: JSON.stringify({ count: this.products[idx].count }),
                     });
-                } else {
-                   fetch(`${API_URL}/cart/${id}`, { method: 'DELETE' });
-                   this.products.splice(i, 1);
-                   $items[i].remove();
-               }
-            }
+        } else {
+            fetch(`${API_URL}/cart/${id}`, { method: 'DELETE' });
+            this.products = this.products.filter((e) => +e.id !== +id);
         }
         this.reload();
     }
@@ -155,23 +141,12 @@ class Cart {
     
     getCartCount() {
         const $cartCount = document.querySelector('.cart-items-total');
-        let total = 0;
-        this.products.forEach(e => {
-            total += +e.count;
-        });
-
-        $cartCount.textContent = total;
+        $cartCount.textContent = this.products.reduce((acc, item) => acc + item.count, 0);
     }
 
     getCartPrice() {
-        let price = 0;
-        const $priceBlock = document.querySelector('.cart-total__price');
-        this.products.forEach(e => {
-            if (!isNaN(+e.price)) {
-                price += +e.price * e.count;
-            }
-        });
-       $priceBlock.textContent = this.currency + price;
+       const $priceBlock = document.querySelector('.cart-total__price');
+       $priceBlock.textContent = this.currency + this.products.reduce((acc, item) => acc + item.count * item.price, 0);;
     }
 }
 
@@ -196,7 +171,7 @@ class CartItem {
     render () {
         return  `<a href="single-page.html" class="in-cart-item" data-id ="${this.id}">
                     <div class="cart__photo"> 
-                        <img class="item-photo" src="${this.photo}">
+                        <img class="item-photo" src="${this.photo}" data-product="${this.product_id}">
                     </div>
                 </div>
                 <div class="item-container">
@@ -222,11 +197,14 @@ class CartItem {
 const cart = new Cart();
 cart.fetchItems().then(() => document.querySelector('.cart__container').innerHTML = cart.render());
 
-const $btnRemove = document.querySelector('.cart__container');
-$btnRemove.addEventListener('click', e => {
+const $cartItems = document.querySelector('.cart__container');
+$cartItems.addEventListener('click', e => {
     e.preventDefault();
     if (e.target.classList.contains('btn_remove')) {
         cart.removeItem(e.target.getAttribute('data-id'));
+    } else if (e.target.classList.contains('item-photo')) {
+        const id = e.target.dataset.product;
+        window.location.href = `${API_URL}/single-page.html?id=${id}`;
     }
 });
 

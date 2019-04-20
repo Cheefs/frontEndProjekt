@@ -81,7 +81,6 @@ class CartPage {
     }
 }
 
-
 class Item {
     constructor (id, name, price, photo, count = 1, currency = '$', size, color, shipping = 'FREE') {
         this.id = id;

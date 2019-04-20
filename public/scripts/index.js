@@ -57,30 +57,21 @@ products.fetchItems().then(() => document.querySelector('.product-block').innerH
 
 const $products = document.querySelector('.product-block');
     $products.addEventListener('click', (e) => {
-
-        console.log(e.target);
     e.preventDefault();
     
-
     if (e.target.parentElement.classList.contains('add-to-cart') || e.target.classList.contains('add-to-cart')) {
         let $productData = e.target.parentElement;
         if (e.target.parentElement.classList.contains('add-to-cart')) {
             $productData = $productData.parentElement;
         }
         const id = $productData.querySelector('.add-to-cart').dataset.id;
-        const name = $productData.querySelector('.name').textContent;
-        const price = $productData.querySelector('.price_value').textContent;
-        const photo = $productData.querySelector('.photo_img').src;
-        const username = document.cookie.trim() !== '' ? document.cookie : '0';
 
-        const color = $productData.dataset.color;
-        const size = $productData.dataset.size;
-        const category = $productData.dataset.category;
-        const type = $productData.dataset.type;
-
-        const product = new CartItem(null, id, username, name, price, photo, size, color, category, type);
-        cart.addProduct(product);
+        sendRequest(`${API_URL}/products/${id}`).then((value) => {
+            const username = document.cookie.trim() !== '' ? document.cookie : '0';
+            const product = new CartItem(null, value.id, username, value.name, value.price, value.photo, value.size, value.color, value.category, value.type);
+            cart.addProduct(product);
+        });
     } else if (e.target.classList.contains('photo_img')) {
-        window.location.href = `${API_URL}/single-page.html?id=${e.target.dataset.id}`
+        window.location.href = `${API_URL}/single-page.html?id=${e.target.dataset.id}`;
     }
 });

@@ -215,41 +215,6 @@ const $products = document.querySelector('.product-container');
     }
 });
 
-// class Review {
-//     constructor(id, username, comment, date, status) {
-//         this.id = id;
-//         this.username = username;
-//         this.comment = comment;
-//         this.date = date;
-//         this.status = status;
-//     }
-
-//     render() {
-//          return ` <div class="comment">
-//                     <div class="comment__autor">${ this.username } AT &nbsp; ${this.date}</div>
-//                     <div class="comment__text">${ this.comment }</div>
-//                 </div>`;
-//     }
-
-//     add() {
-//         const comment = document.querySelector('.comment__input').value;
-//         const id = document.querySelector('.product-btn').dataset.id;
-//         const userId = document.cookie === null? 0 : document.cookie;
-//         let dateTime = new Date();
-//         dateTime = dateTime.toISOString().split('.')[0].replace(/[a-zA-Z]/g,' ');
-    
-//       return  sendRequest(`${API_URL}/users?id=${userId}`).then((value) => {
-//             const username = value.length > 0? value[0].username : 'guest';
-//             fetch(`${API_URL}/reviews`, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 }, body: JSON.stringify({ product_id: id, username: username, comment: comment, datetime: dateTime, status: 'new' }),
-//             });
-//         });
-//     }
-// }
-
 class ReviewsList {
     constructor() {
         this.reviews = [];
