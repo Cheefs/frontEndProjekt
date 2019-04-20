@@ -85,6 +85,9 @@ nav {
 .hide {
   display: none !important; }
 
+.text.text_center {
+  text-align: center; }
+
 .admin__controls {
   display: flex;
   justify-content: center; }
@@ -1122,6 +1125,7 @@ footer {
       align-items: center;
       width: 191px; }
       footer .container .footer-left .social-btn {
+        cursor: pointer;
         display: block;
         height: 32px;
         width: 32px;

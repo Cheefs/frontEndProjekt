@@ -23,7 +23,6 @@ class Product {
                     <div class="photo">
                         <div class="photo-link">
                             <img class="photo_img"src="${this.photo}">
-                        
                         </div>
                     </div>
                     <a href="#" class="arrow right"><i class="fas fa-angle-left"></i></a>`;
@@ -34,7 +33,7 @@ class Product {
                     <div class="line">
                         <div class="line-color"></div>
                     </div>
-                    <article class="product-desc-article">
+                    <article class="product-desc-article single_product" data-id="${this.id}">
                         <h3 class="article-h3">${this.name}</h3>
                         <p class="article-p">${this.desc}</p>
                         <div class="material-desinger">
@@ -45,7 +44,6 @@ class Product {
                                 <a class="material-desinger-link" href="#">${this.brand}</a>
                             </div>
                         </div>
-
                         <div class="product-price">${this.currency}${this.price}</div>
                     </article>
 
@@ -165,6 +163,8 @@ window.addEventListener('load', (e)=> {
             color = $colorPicker.options[color].value;
             $colorExample.classList = `color-example ${color}`;
         });
+
+        reviewList.init();
     });
 });
 
@@ -222,7 +222,8 @@ class ReviewsList {
     }
 
     fetch() {
-        return sendRequest(`${API_URL}/reviews?status=moderate`).then((value) => {
+        const id = document.querySelector('.single_product').dataset.id;
+        return sendRequest(`${API_URL}/reviews?status=moderate&product_id=${id}`).then((value) => {
             this.reviews = value.map((rev) => new Review(rev.id, rev.username, rev.comment, rev.datetime, rev.status));
         });
     }
@@ -233,12 +234,11 @@ class ReviewsList {
     }
 
     init() {
-      return  this.fetch().then(() => document.querySelector('.product__comments').innerHTML = this.render());
+       return  this.fetch().then(() => document.querySelector('.product__comments').innerHTML = this.render());
     }
 }
 
 const reviewList = new ReviewsList();
-reviewList.init();
 
 const $btnAddComment = document.querySelector('.add_button');
 
