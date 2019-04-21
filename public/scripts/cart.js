@@ -5,14 +5,15 @@ class CartPage {
     }
 
     fetchItems() {
-        const userid = document.cookie.trim() !== '' ? document.cookie : '0';
-        return sendRequest(`${API_URL}/cart?userid=${userid}`).then((value) => {
+        const userId = loginUser.getId();
+        return sendRequest(`${API_URL}/cart?userid=${userId}`).then((value) => {
             this.products = value.map(product =>
                 new Item( product.id, product.name, product.price, product.photo, product.count, product.currency, product.size, product.color));
         });
     }
 
     render() {
+        console.log(this.products)
         const itemsHtmls = this.products.map(product => product.render() );
         this.getCartPrice();
         this.getCartCount();
@@ -24,7 +25,7 @@ class CartPage {
         const idx = this.products.findIndex((e) => +e.id === +id);
         const count = this.products[idx].count;
         if (!isNaN(value) && count !== value && value > 0)  {
-            this.products[idx].count = value;
+            this.products[idx].count = +value;
             fetch(`/cart/${id}`, {
                 method: 'PATCH',
                 headers: {
@@ -68,7 +69,7 @@ class CartPage {
     }
 
     getCartCount() {
-        return this.products.reduce((acc, item) => acc + item.count, 0);
+        return this.products.reduce((acc, item) => acc + +item.count, 0);
     }
 
     getCartPrice() {
@@ -125,12 +126,13 @@ class Item {
         return this.count * this.price;
     }
 }
-
 const cartPage = new CartPage();
 const $cartContainer = document.getElementById('cartContainer');
 const $btnClearCart = document.querySelector('.btn-delete-all');
 
-cartPage.fetchItems().then(() => $cartContainer.innerHTML = cartPage.render());
+window.addEventListener('load', (e)=> {
+    loginUser.login(LOGIN_MODE_AUTO); // обьект login User инициализируется в общем скрипте main.js
+});
 
 $btnClearCart.addEventListener('click', (e) => {
     showHelpModal('All products has removed from cart');
@@ -152,3 +154,5 @@ $cartContainer.addEventListener('mouseout', (e) => {
         cartPage.changeCount(id, e.target.value);
     }
 });
+
+

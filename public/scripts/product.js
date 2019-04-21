@@ -16,6 +16,7 @@ window.addEventListener('load', (e)=> {
         products.filter($searchText.value);
         document.querySelector('.product-block').innerHTML = products.render();
     }
+    loginUser.login(LOGIN_MODE_AUTO);
 });
 
 class Product {
@@ -202,9 +203,9 @@ $products.addEventListener('click', (e) => {
             $productData = $productData.parentElement;
         }
         const id = $productData.dataset.id;
-        const userid = document.cookie.trim() !== '' ? document.cookie : '0';
+        const userId = loginUser.getId();
         sendRequest(`${API_URL}/products/${id}`).then((value) =>
-            cart.addProduct(new CartItem(null, value.id, userid, value.name, value.price, value.photo, value.size, value.color, value.category, value.type)
+            cart.addProduct(new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type)
         ));
 
     } else if (e.target.classList.contains('photo_img' ) || e.target.classList.contains('photo')) {

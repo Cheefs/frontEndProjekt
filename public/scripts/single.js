@@ -136,6 +136,9 @@ const recomended = new RecomendedProducts();
 const username = document.cookie.trim() !== '' ? document.cookie : '0';
 
 window.addEventListener('load', (e)=> {
+
+    loginUser.login(LOGIN_MODE_AUTO);
+
     let id = 1;
     if (location.search.trim() !== '') {
         id = location.search.split('=')[1];
@@ -239,15 +242,12 @@ class ReviewsList {
 }
 
 const reviewList = new ReviewsList();
-
 const $btnAddComment = document.querySelector('.add_button');
 
 $btnAddComment.addEventListener('click', (e) => {
     const rev = new Review();
-    rev.add().then(() => {
-        reviewList.init();
-        document.querySelector('.comment__input').value = '';
-
-        showHelpModal('ваш отзыв отправлен на модерацию');
-    });
+    rev.add();
+    reviewList.init();
+    document.querySelector('.comment__input').value = '';
+    showHelpModal('ваш отзыв отправлен на модерацию');
 });

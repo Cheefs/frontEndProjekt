@@ -16,32 +16,104 @@
       "email": "cheef@cheef.ch",
       "gender": "man",
       "role": "user",
-      "id": 2
+      "id": 2,
+      "card": "",
+      "bio": ""
+    },
+    {
+      "username": "newyk",
+      "password": "newyk",
+      "email": "new@mail.new",
+      "gender": "woman",
+      "role": "user",
+      "id": 3,
+      "card": "",
+      "bio": ""
     }
   ],
   "cart": [
     {
-      "id": 1,
-      "product_id": "2",
-      "userid": "2",
-      "name": "People",
-      "price": "142.00",
-      "photo": "http://localhost:3000/images/Layer_4.jpg",
-      "count": 1,
-      "currency": "$"
-    },
-    {
       "id": 2,
-      "product_id": 6,
-      "userid": "2",
-      "name": "Mango People",
+      "product_id": 16,
+      "userid": 0,
+      "name": "Mango T-shirt",
       "price": "52.00",
-      "photo": "images/Layer_47.jpg",
+      "photo": "images/shirt7.jpg",
       "size": "XL",
       "color": "black",
       "category": "shirt",
       "type": "man",
-      "count": 2,
+      "count": "1",
+      "currency": "$"
+    },
+    {
+      "id": 3,
+      "product_id": 12,
+      "userid": 2,
+      "name": "Mango T-shirt",
+      "price": "52.00",
+      "photo": "images/shirt3.jpg",
+      "size": "XL",
+      "color": "black",
+      "category": "shirt",
+      "type": "man",
+      "count": "2",
+      "currency": "$"
+    },
+    {
+      "id": 4,
+      "product_id": 3,
+      "userid": 0,
+      "name": "ZANGO",
+      "price": "52.00",
+      "photo": "images/Layer_44.jpg",
+      "size": "XXL",
+      "color": "black",
+      "category": "shirt",
+      "type": "man",
+      "count": 1,
+      "currency": "$"
+    },
+    {
+      "id": 6,
+      "product_id": 13,
+      "userid": 2,
+      "name": "Mango T-shirt",
+      "price": "52.00",
+      "photo": "images/shirt4.jpg",
+      "size": "S",
+      "color": "white",
+      "category": "dress",
+      "type": "woman",
+      "count": 1,
+      "currency": "$"
+    },
+    {
+      "id": 7,
+      "product_id": 1,
+      "userid": 1,
+      "name": "Mango",
+      "price": "52.00",
+      "photo": "images/Layer_43.jpg",
+      "size": "L",
+      "color": "black",
+      "category": "shirt",
+      "type": "man",
+      "count": 1,
+      "currency": "$"
+    },
+    {
+      "id": 8,
+      "product_id": 16,
+      "userid": 1,
+      "name": "Mango T-shirt",
+      "price": "52.00",
+      "photo": "images/shirt7.jpg",
+      "size": "XL",
+      "color": "black",
+      "category": "shirt",
+      "type": "man",
+      "count": 1,
       "currency": "$"
     }
   ],
@@ -358,19 +430,35 @@
   "reviews": [
     {
       "product_id": "13",
-      "username": "cheef",
-      "comment": "trrtrtrtr",
-      "datetime": "2019-04-17 12:31:58",
-      "status": "moderate",
-      "id": 1
-    },
-    {
-      "product_id": "13",
       "username": "admin",
       "comment": "awdasdfasdasd",
       "datetime": "2019-04-17 14:44:31",
       "status": "moderate",
       "id": 2
+    },
+    {
+      "product_id": "2",
+      "username": "guest",
+      "comment": "ADMIN REVIEW",
+      "datetime": "2019-04-21 10:29:28",
+      "status": "moderate",
+      "id": 3
+    },
+    {
+      "product_id": "2",
+      "username": "guest",
+      "comment": "I`m guest",
+      "datetime": "2019-04-21 10:37:16",
+      "status": "moderate",
+      "id": 5
+    },
+    {
+      "product_id": "1",
+      "username": "admin",
+      "comment": "rtrtrtrt",
+      "datetime": "2019-04-21 10:42:12",
+      "status": "moderate",
+      "id": 6
     }
   ]
 }

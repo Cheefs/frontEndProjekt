@@ -1,3 +1,12 @@
+window.addEventListener('load', (e)=> {
+    if (location.search.trim() !== '') {
+        $searchText.value = location.search.split('=')[1];
+        products.filter($searchText.value);
+        document.querySelector('.product-block').innerHTML = products.render();
+    }
+    loginUser.login(LOGIN_MODE_AUTO);
+});
+
 class Product {
     constructor(id, name = 'EXCLUSIVE', price = 'SOLD', photo = 'no-photo', currency = '$', size, color, category, type ) {
         this.id = id;
@@ -67,8 +76,8 @@ const $products = document.querySelector('.product-block');
         const id = $productData.querySelector('.add-to-cart').dataset.id;
 
         sendRequest(`${API_URL}/products/${id}`).then((value) => {
-            const username = document.cookie.trim() !== '' ? document.cookie : '0';
-            const product = new CartItem(null, value.id, username, value.name, value.price, value.photo, value.size, value.color, value.category, value.type);
+            const userId = loginUser.getId();
+            const product = new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type);
             cart.addProduct(product);
         });
     } else if (e.target.classList.contains('photo_img')) {

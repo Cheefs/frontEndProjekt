@@ -1,36 +1,3 @@
-window.addEventListener('load',(e)=> {
-    const $confirmField = document.getElementById('passwordConfirm');
-    $confirmField.addEventListener('keyup', (e) => {
-        const $password = document.getElementById('passwordEdit');
-        if ($password.value === $confirmField.value) {
-            document.querySelector('.help-block.password_edit').textContent = '';
-            $password.classList.remove('invalid');
-        }
-    });
-
-});
-
-const $myData = document.querySelector('.my-data_container');
-$myData.addEventListener('click', (e) => {
-    if (e.target.classList.contains('input_checkbox')) {
-        if (e.target.classList.contains('man')) {
-            document.getElementById('woman').checked = false;
-        } else {
-            document.getElementById('man').checked = false;
-        }
-    } else if (e.target.classList.contains('btn_save')) {
-        doValidate();
-    } else if (e.target.classList.contains('admin__btn')) {
-        const target = e.target;
-        const id = target.parentElement.dataset.id;
-        if (target.classList.contains('btn_primarry')) {
-            user.moderate(id);
-        } else {
-            user.deleteReview(id);
-        }   
-    } 
-});
-
 class User {
     constructor(id, username, password, gender, email, card, bio, role) {
         this.id = id;
@@ -101,7 +68,8 @@ class UserData {
     }
 
     fetch () {
-      return  sendRequest(`${API_URL}/users?id=`+ document.cookie).then((value) => {
+      const userId = loginUser.getId();
+      return  sendRequest(`${API_URL}/users?id=${userId}`).then((value) => {
             if (value.length > 0) {
                 const data = value[0];
                 this.user = new User(data.id, data.username, data.password, data.gender, data.email, data.card, data.bio, data.role);
@@ -121,12 +89,25 @@ class UserData {
     render () {
         document.querySelector('.my-data_container').innerHTML = this.user.render();
         this.user.checkGender();
+
+        const $confirmField = document.getElementById('passwordConfirm');
+        $confirmField.addEventListener('keyup', (e) => {
+            const $password = document.getElementById('passwordEdit');
+            if ($password.value === $confirmField.value) {
+                document.querySelector('.help-block.password_edit').textContent = '';
+                $password.classList.remove('invalid');
+            }
+        }); 
     }
     
     fetchReviews() {
         return sendRequest(`${API_URL}/reviews`).then((val) => {
            this.reviews = val.map((rev) => new Review(rev.id, rev.username, rev.comment, rev.datetime, rev.status));
-           document.querySelector('.nav__panel').innerHTML += this.addReviewBlock();
+           const checkNavPanel = document.querySelector('.reviews');
+           if ( checkNavPanel === null) {
+            document.querySelector('.nav__panel').innerHTML += this.addReviewBlock();
+           }
+          
         });
     }
 
@@ -138,7 +119,7 @@ class UserData {
         for (var i = 0; i < $listReviews.length; i++) {
             const isNew = $listReviews[i].classList.contains('new');
             const id = $listReviews[i].parentElement.dataset.id;
-            $listReviews[i].innerHTML = user.addAdminButtons( id, isNew );
+            $listReviews[i].innerHTML = userData.addAdminButtons( id, isNew );
         }
     }
     
@@ -167,11 +148,41 @@ class UserData {
         });
     }
 }
+const userData = new UserData();
+
+window.addEventListener('load', (e)=> {
+    loginUser.login(LOGIN_MODE_AUTO).then((res) => {
+        if (Object.keys(res).length) {
+            userData.fetch().then(() => userData.render());
+        } else {
+            window.location.href = `${API_URL}/index.html`;
+        }
+    });
+});
 
 
+const $myData = document.querySelector('.my-data_container');
 
-const user  = new UserData();
-user.fetch().then(() => user.render());
+$myData.addEventListener('click', (e) => {
+    if (e.target.classList.contains('input_checkbox')) {
+        if (e.target.classList.contains('man')) {
+            document.getElementById('woman').checked = false;
+        } else {
+            document.getElementById('man').checked = false;
+        }
+    } else if (e.target.classList.contains('btn_save')) {
+        doValidate();
+    } else if (e.target.classList.contains('admin__btn')) {
+        const target = e.target;
+        const id = target.parentElement.dataset.id;
+        if (target.classList.contains('btn_primarry')) {
+            userData.moderate(id);
+        } else {
+            userData.deleteReview(id);
+        }   
+    } 
+});
+
 
 function doValidate() {
     const validation = {
@@ -187,7 +198,7 @@ function doValidate() {
     ];
 
     let hasErors = false;
-    const updatedUser = { id: userData.id };
+    const updatedUser = { id: userData.user.id };
 
     Object.keys(validation).forEach(rule => {
         const fields = document.querySelectorAll('[data-rule-modify="'+rule+'"]');
@@ -233,12 +244,23 @@ function doValidate() {
     }
 }
 
+
 function saveChanges(updatedUser) {
     var $textinputs = document.querySelectorAll('input[type=checkbox]');
         updatedUser.username = document.getElementById('usernameEdit').value;
+        document.cookie = `username=${updatedUser.username}`;
+        const password = document.getElementById('passwordEdit').value;
+        console.log(userData.user.password)
+        if (password.trim() !== '' && password !== null && password !== userData.user.password) {
+            updatedUser.password = password;
+            document.cookie = `password=${password}`;
+        }
+
         updatedUser.email = document.getElementById('email-addresEdit').value;
         updatedUser.card = document.getElementById('credit-cartEdit').value;
         updatedUser.bio = document.getElementById('bioEdit').value.trim();
+
+    
 
     [].filter.call($textinputs, (e) => {
         if (e.checked) {
@@ -251,7 +273,8 @@ function saveChanges(updatedUser) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...userData, ...updatedUser }),
+        body: JSON.stringify({...updatedUser }),
+        
     });
    showHelpModal('All Chenges Saved');
 }
@@ -264,9 +287,9 @@ $navPanel.addEventListener('click', (e) => {
         e.target.classList.toggle('active');
 
         if (e.target.classList.contains('reviews')) {
-            user.renderRewiews();
+            userData.renderRewiews();
         } else if (e.target.classList.contains('presonal')) {
-            user.render();
+            userData.render();
         }
     }
 });
