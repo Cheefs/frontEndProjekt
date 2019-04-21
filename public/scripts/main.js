@@ -438,3 +438,12 @@ $btnLogOut.addEventListener('click', (e) => {
     e.preventDefault();
     loginUser.logOut();
 });
+
+
+const $navigation = document.querySelector('.navigation');
+$navigation.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains('menu-link')) {
+        window.location.href = `product.html?type=${e.target.textContent}`;
+    }
+});

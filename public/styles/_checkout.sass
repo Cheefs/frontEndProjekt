@@ -4,6 +4,7 @@
 .container
   .checkout-element
     border-bottom: $minBorder-width solid $color-promoBg
+    cursor: pointer
 
     .header
       height: 72px
@@ -19,13 +20,15 @@
         text-transform: uppercase
 
     .checkout-content
-      opacity: 0
+      //opacity: 0
       height: 0
       padding: 0 50px
       transition: 0.5s
+      overflow: hidden
 
     .element-content
       height: 400px
+      overflow: hidden
       +editedFlex(space-around, usnet)
 
     h3
@@ -44,20 +47,23 @@
 
     &.selected
       border-bottom: $minBorder-width solid $color-promoBg
-
-    &:hover
       background-color: #dddddd5e
       color: red
+      .header
+        .header-h3
+          transform: translate(443px)
+          display: block
+          color: $colorPink
 
-    &:hover .header .header-h3
-      transform: translate(443px)
-      display: block
-      color: $colorPink
+      .checkout-content
+        color: $colorGray-middle
+        height: 473px
+        animation: checkout-content 1s linear forwards
 
-    &:hover .checkout-content
-      color: $colorGray-middle
-      height: 473px
-      animation: checkout-content 1s linear forwards
+    //&:hover
+
+
+
 
 .btn
   display: block

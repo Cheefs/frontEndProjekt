@@ -1,7 +1,12 @@
 const CURRENCY = '$';
 const MODE_SIZE = 'SIZE';
 const MODE_BRAND = 'BRAND';
-const MODE_PRICE_RANGE = 'RANGE'
+const MODE_DESINGER = 'DESINGER';
+const MODE_CATEGORY = 'CATEGORY';
+const MODE_PRICE_RANGE = 'RANGE';
+
+const SEARCH_BY_NAME = 'name';
+const SEARCH_BY_TYPE = 'type';
 
 const MODE_SORT = 'SORT';
 const SORT_NAME = 0;
@@ -12,8 +17,13 @@ let activeIndex = 1; // храним в памяти текущую страни
 
 window.addEventListener('load', (e)=> {
     if (location.search.trim() !== '') {
-        $searchText.value = location.search.split('=')[1];
-        products.filter($searchText.value);
+        const params = location.search.split('=');
+        if (params[0].indexOf(`?${SEARCH_BY_NAME}`) !== -1) {
+            $searchText.value = params[1];
+            products.filter(SEARCH_BY_NAME, $searchText.value);
+        } else if (params[0].indexOf(`?${SEARCH_BY_TYPE}`) !== -1) {
+            products.filter(SEARCH_BY_TYPE, params[1]);
+        }   
         document.querySelector('.product-block').innerHTML = products.render();
     }
     loginUser.login(LOGIN_MODE_AUTO);
@@ -82,31 +92,34 @@ class ProductsList {
     }
     // сортировка товаров на панели сортировки
     sort(sortQuerry, mode) {
-        if (mode === MODE_SIZE) {
-            this.filterItems = (sortQuerry.length > 0)? this.products.filter((item) => sortQuerry.includes(item.size)) : this.products;
-        } else if (mode === MODE_BRAND) {
-            this.filterItems = this.products.filter((item) => item.brand === sortQuerry); 
-        } else if (mode === MODE_SORT) {
+        if (mode === MODE_SORT) {
             if (+sortQuerry === SORT_NAME) {
                 this.filterItems.sort((a, b) => (b.name < a.name) - (a.name < b.name));
             } else if (+sortQuerry === SORT_PRICE) {
                 this.filterItems.sort((a, b) => (+b.price < +a.price) - (+a.price < +b.price) );
             } else {
                 this.filterItems.sort((a, b) => (b.size < a.size) - (a.size < b.size));
-            }
+            } 
+        } else if (mode === MODE_SIZE) {
+            this.filterItems = (sortQuerry.length > 0)? this.products.filter((item) => sortQuerry.includes(item.size)) : this.products;
+        } else if (mode === MODE_BRAND || mode === MODE_DESINGER) {
+            this.filterItems = this.products.filter((item) => item.brand === sortQuerry); 
         } else if (mode === MODE_PRICE_RANGE) {
             this.filterItems = this.products.filter((item) => (+item.price >= +sortQuerry.min && +item.price <= +sortQuerry.max) );
+        } else if (mode === MODE_CATEGORY) {
+            this.filterItems = this.products.filter((item) => item.category.toUpperCase() === sortQuerry.toUpperCase() );
         }
         document.querySelector('.product-block').innerHTML = this.render();
     }
     // фильтарция товаров по строке поиска
-    filter(query) {
-        const regexp = new RegExp(query, 'i');
-        this.filterItems = this.products.filter((item) => regexp.test(item.name))
-    }
-    // полная стоимость товаров каталога ( не используется)
-    totalPrice() {
-        return this.products.reduce((acc, item) => acc + item.price, 0);
+    filter(mode, query) {
+        if (mode === SEARCH_BY_NAME) {
+            const regexp = new RegExp(query, 'i');
+            this.filterItems = this.products.filter((item) => regexp.test(item.name))
+        } else if (mode === SEARCH_BY_TYPE) {
+            this.filterItems = this.products.filter((item) => item.type.toLowerCase() === query.toLowerCase());
+        }
+       
     }
     // отображение страници каталога
     render() {
@@ -248,9 +261,7 @@ $rangeInput.addEventListener("mouseup", () => {
 
     const min = document.querySelector('.price_min').textContent.replace(CURRENCY,'');
     const max = document.querySelector('.price_max').textContent.replace(CURRENCY,'');
-    
     products.sort({min: min, max: max}, MODE_PRICE_RANGE);
-    
 });
 
 var currX = 0;
@@ -289,6 +300,15 @@ $navPanelLeftSide.addEventListener('click', (e) => {
     if (e.target.classList.contains('spoiler') || e.target.parentElement.classList.contains('spoiler')) {
          const $parent = e.target.classList.contains('spoiler')? e.target.parentElement : e.target.parentElement.parentElement;
          $parent.classList.toggle('open');
+    } else if (e.target.classList.contains('spoiler-items-a')) {
+        const filterQuerry = e.target.textContent.toUpperCase();
+        const $parent = e.target.parentElement;
+        const mode = !$parent.classList.contains('brand') ? 
+                (!$parent.classList.contains('desinger')? MODE_CATEGORY 
+                : MODE_DESINGER) 
+            : MODE_BRAND;
+       
+        products.sort(filterQuerry, mode);
     }
 });
 
@@ -320,7 +340,6 @@ $pagesBlock.addEventListener('click', (e) => {
     e.preventDefault();
     if (e.target.classList.contains('pages-block-a')) {
         const id = e.target.dataset.page;
-
         products.changePage(id);
     } else if (e.target.classList.contains('fa-angle-left') ) {
         products.changePage(activeIndex - 1);

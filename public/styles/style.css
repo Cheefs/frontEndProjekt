@@ -2156,7 +2156,8 @@ footer {
         border: 1px solid #e3455afc; }
 
 .container .checkout-element {
-  border-bottom: 1px solid #e8e8e8; }
+  border-bottom: 1px solid #e8e8e8;
+  cursor: pointer; }
   .container .checkout-element .header {
     height: 72px;
     display: flex;
@@ -2171,12 +2172,13 @@ footer {
       font-weight: 700;
       text-transform: uppercase; }
   .container .checkout-element .checkout-content {
-    opacity: 0;
     height: 0;
     padding: 0 50px;
-    transition: 0.5s; }
+    transition: 0.5s;
+    overflow: hidden; }
   .container .checkout-element .element-content {
     height: 400px;
+    overflow: hidden;
     display: flex;
     justify-content: space-around;
     align-items: usnet; }
@@ -2193,18 +2195,17 @@ footer {
     font-weight: 400;
     margin-top: 15px; }
   .container .checkout-element.selected {
-    border-bottom: 1px solid #e8e8e8; }
-  .container .checkout-element:hover {
+    border-bottom: 1px solid #e8e8e8;
     background-color: #dddddd5e;
     color: red; }
-  .container .checkout-element:hover .header .header-h3 {
-    transform: translate(443px);
-    display: block;
-    color: #f16d7f; }
-  .container .checkout-element:hover .checkout-content {
-    color: #646464;
-    height: 473px;
-    animation: checkout-content 1s linear forwards; }
+    .container .checkout-element.selected .header .header-h3 {
+      transform: translate(443px);
+      display: block;
+      color: #f16d7f; }
+    .container .checkout-element.selected .checkout-content {
+      color: #646464;
+      height: 473px;
+      animation: checkout-content 1s linear forwards; }
 
 .btn {
   display: block;

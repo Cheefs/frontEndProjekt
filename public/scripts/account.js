@@ -160,9 +160,7 @@ window.addEventListener('load', (e)=> {
     });
 });
 
-
 const $myData = document.querySelector('.my-data_container');
-
 $myData.addEventListener('click', (e) => {
     if (e.target.classList.contains('input_checkbox')) {
         if (e.target.classList.contains('man')) {
@@ -170,8 +168,6 @@ $myData.addEventListener('click', (e) => {
         } else {
             document.getElementById('man').checked = false;
         }
-    } else if (e.target.classList.contains('btn_save')) {
-        doValidate();
     } else if (e.target.classList.contains('admin__btn')) {
         const target = e.target;
         const id = target.parentElement.dataset.id;
@@ -180,6 +176,8 @@ $myData.addEventListener('click', (e) => {
         } else {
             userData.deleteReview(id);
         }   
+    } else if (e.target.classList.contains('btn_save')) {
+        doValidate();
     } 
 });
 
@@ -244,23 +242,20 @@ function doValidate() {
     }
 }
 
-
 function saveChanges(updatedUser) {
-    var $textinputs = document.querySelectorAll('input[type=checkbox]');
-        updatedUser.username = document.getElementById('usernameEdit').value;
-        document.cookie = `username=${updatedUser.username}`;
-        const password = document.getElementById('passwordEdit').value;
-        console.log(userData.user.password)
-        if (password.trim() !== '' && password !== null && password !== userData.user.password) {
-            updatedUser.password = password;
-            document.cookie = `password=${password}`;
-        }
+    const $textinputs = document.querySelectorAll('input[type=checkbox]');
+    updatedUser.username = document.getElementById('usernameEdit').value;
+    document.cookie = `username=${updatedUser.username}`;
+    const password = document.getElementById('passwordEdit').value;
 
-        updatedUser.email = document.getElementById('email-addresEdit').value;
-        updatedUser.card = document.getElementById('credit-cartEdit').value;
-        updatedUser.bio = document.getElementById('bioEdit').value.trim();
+    if (password.trim() !== '' && password !== null && password !== userData.user.password) {
+        updatedUser.password = password;
+        document.cookie = `password=${password}`;
+    }
 
-    
+    updatedUser.email = document.getElementById('email-addresEdit').value;
+    updatedUser.card = document.getElementById('credit-cartEdit').value;
+    updatedUser.bio = document.getElementById('bioEdit').value.trim();
 
     [].filter.call($textinputs, (e) => {
         if (e.checked) {
