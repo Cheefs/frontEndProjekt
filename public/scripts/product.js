@@ -307,7 +307,6 @@ $navPanelLeftSide.addEventListener('click', (e) => {
                 (!$parent.classList.contains('desinger')? MODE_CATEGORY 
                 : MODE_DESINGER) 
             : MODE_BRAND;
-       
         products.sort(filterQuerry, mode);
     }
 });
@@ -318,7 +317,7 @@ $sizeFilters.addEventListener('click', () => {
     const list = document.querySelectorAll('.checkbox_input');
     const filterQuerry = [];
     for (var i = 0; i< list.length; i++) {
-        if(list[i].checked) {
+        if (list[i].checked) {
             filterQuerry.push(list[i].value);
         }
     }

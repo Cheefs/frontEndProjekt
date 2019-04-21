@@ -11,7 +11,7 @@ class User {
     }
 
   render() {
-    return`<form class="login-form">
+    return `<form class="login-form">
                 <div class="input-block edit-data">
                     <label class="label input-block-label" for="usernameEdit" >USERNAME</label>
                     <input value="${this.username}" class="input-block-input" data-rule-modify="username" type="text" id="usernameEdit" >
@@ -181,7 +181,6 @@ $myData.addEventListener('click', (e) => {
     } 
 });
 
-
 function doValidate() {
     const validation = {
         'username': /\w/,
@@ -273,7 +272,6 @@ function saveChanges(updatedUser) {
     });
    showHelpModal('All Chenges Saved');
 }
-
 
 const $navPanel = document.querySelector('.nav__panel');
 $navPanel.addEventListener('click', (e) => {
