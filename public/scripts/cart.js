@@ -154,5 +154,3 @@ $cartContainer.addEventListener('mouseout', (e) => {
         cartPage.changeCount(id, e.target.value);
     }
 });
-
-

@@ -217,9 +217,10 @@ $products.addEventListener('click', (e) => {
         }
         const id = $productData.dataset.id;
         const userId = loginUser.getId();
-        sendRequest(`${API_URL}/products/${id}`).then((value) =>
-            cart.addProduct(new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type)
-        ));
+        sendRequest(`${API_URL}/products/${id}`).then((value) => {
+            value = value[0];
+            cart.addProduct(new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type));
+        });
 
     } else if (e.target.classList.contains('photo_img' ) || e.target.classList.contains('photo')) {
         const id = e.target.classList.contains('photo')? e.target.dataset.id : e.target.parentElement.dataset.id;

@@ -136,9 +136,7 @@ const recomended = new RecomendedProducts();
 const username = document.cookie.trim() !== '' ? document.cookie : '0';
 
 window.addEventListener('load', (e)=> {
-
     loginUser.login(LOGIN_MODE_AUTO);
-
     let id = 1;
     if (location.search.trim() !== '') {
         id = location.search.split('=')[1];
@@ -166,7 +164,6 @@ window.addEventListener('load', (e)=> {
             color = $colorPicker.options[color].value;
             $colorExample.classList = `color-example ${color}`;
         });
-
         reviewList.init();
     });
 });
@@ -189,7 +186,8 @@ $productContainer.addEventListener('click', (e) => {
         
        const count = document.querySelector('.input_count').value;
 
-        sendRequest(`${API_URL}/products?id=${id}`).then((value) => {
+        sendRequest(`${API_URL}/products/${id}`).then((value) => {
+            console.log(value);
             const product = new CartItem(null, value[0].id, username, value[0].name, value[0].price, 
                 value[0].photo, size, color, value[0].category, value[0].type, count
             );
@@ -198,10 +196,8 @@ $productContainer.addEventListener('click', (e) => {
     }
 });
 
-
 const $products = document.querySelector('.product-container');
     $products.addEventListener('click', (e) => {
-
     e.preventDefault();
     if (e.target.parentElement.classList.contains('add-to-cart') || e.target.classList.contains('add-to-cart')) {
         let $productData = e.target.parentElement.parentElement.parentElement;

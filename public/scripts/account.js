@@ -67,16 +67,15 @@ class UserData {
         this.isAdmin = false;
     }
 
-    fetch () {
-      const userId = loginUser.getId();
-      return  sendRequest(`${API_URL}/users?id=${userId}`).then((value) => {
-            if (value.length > 0) {
-                const data = value[0];
-                this.user = new User(data.id, data.username, data.password, data.gender, data.email, data.card, data.bio, data.role);
-                this.isAdmin = (data.role === 'admin');
+    fetch (value) {
+        return new Promise((res, rej) => {
+            if (value !== null && value !== undefined) {
+                this.user = new User(value.id, value.username, value.password, value.gender, value.email, value.card, value.bio, value.role);
+                this.isAdmin = (value.role === 'admin');
                 if (this.isAdmin) {
                     this.fetchReviews();
                 }
+                res(this.user);
             } else {
                 document.cookie = '';
             }
@@ -88,6 +87,7 @@ class UserData {
 
     render () {
         document.querySelector('.my-data_container').innerHTML = this.user.render();
+ 
         this.user.checkGender();
 
         const $confirmField = document.getElementById('passwordConfirm');
@@ -151,12 +151,8 @@ class UserData {
 const userData = new UserData();
 
 window.addEventListener('load', (e)=> {
-    loginUser.login(LOGIN_MODE_AUTO).then((res) => {
-        if (Object.keys(res).length) {
-            userData.fetch().then(() => userData.render());
-        } else {
-            window.location.href = `${API_URL}/index.html`;
-        }
+    loginUser.login(LOGIN_MODE_AUTO).then((user) => {
+        userData.fetch(user).then(() => userData.render());     
     });
 });
 
@@ -268,7 +264,6 @@ function saveChanges(updatedUser) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({...updatedUser }),
-        
     });
    showHelpModal('All Chenges Saved');
 }

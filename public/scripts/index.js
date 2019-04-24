@@ -45,10 +45,12 @@ class ProductsList {
         this.minProducts = 9;
         this.maxProducts = 19;
         this.products = [];
+        this.curentMark = 'featured'
     }
     fetchItems() {
-        return sendRequest(`${API_URL}/products?_start=${this.minProducts}&_end=${this.maxProducts}`).then((value) => {
-            this.products = value.map(product => new Product(
+        return sendRequest(`${API_URL}/products`).then((value) => {
+            this.products = value.filter(product => product.mark === this.curentMark);
+            return this.products = this.products.map(product => new Product(
                     product.id, product.name, product.price, product.photo, product.currency,
                     product.size, product.color, product.category, product.type
                 )
@@ -77,6 +79,7 @@ const $products = document.querySelector('.product-block');
 
         sendRequest(`${API_URL}/products/${id}`).then((value) => {
             const userId = loginUser.getId();
+            value = value[0];
             const product = new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type);
             cart.addProduct(product);
         });

@@ -32,7 +32,7 @@ class Cart {
     fetchItems() {
         const userId = loginUser.getId();
         return sendRequest(`${API_URL}/cart?userid=${userId}`).then((value) => {
-            this.products = value.map(product => new CartItem (product.id,  product.product_id, product.userid, 
+           return this.products = value.map(product => new CartItem (product.id,  product.product_id, product.userid, 
                    product.name, product.price,  product.photo, product.size, product.color,product.category, product.type,product.count, product.currency
                 )
             );
@@ -47,15 +47,14 @@ class Cart {
         return itemsHtmls.join('');
     }
 
-    addProduct(product) {
+    addProduct(product) { 
         const userId = loginUser.getId();
         const idx = this.products.findIndex((e) => +e.product_id === +product.product_id);
         if (idx !== -1) {
             this.products[idx].count++;
-            sendRequest(`${API_URL}/cart?userid=${userId}&product_id=${+product.product_id}`).
-            then((value) => {
-                value.find((item) => { 
-                    if (+item.product_id === +product.product_id) {
+                if (+this.products[idx].product_id === +product.product_id) {
+                    sendRequest(`${API_URL}/cart/${userId}`).then((value) => {
+                        const item = value.find((item) => (+item.product_id === +product.product_id && +item.userid === +userId) );
                         fetch(`${API_URL}/cart/${item.id}`, {
                             method: 'PATCH',
                             headers: {
@@ -63,23 +62,21 @@ class Cart {
                             },
                             body: JSON.stringify({ count: this.products[idx].count }),
                         });
-                    }
-                }); 
-            })
-
-        } else {
-            fetch(`${API_URL}/cart`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ...product}),
-            }).then((response) => response.json()).then((item) => {
-                const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency);
-                this.products.push(cartItem);
-            });
-
-        }
+                    });
+                    
+                } 
+            } else {
+                fetch(`${API_URL}/cart`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...product}),
+                }).then((response) => response.json()).then((item) => {
+                    const cartItem = new CartItem(item.id, item.product_id, item.userid, item.name, item.price, item.photo, item.count, item.currency);
+                    this.products.push(cartItem);
+                });
+            }
         showHelpModal();
         this.reload();
     }
@@ -170,22 +167,22 @@ class LoginUser {
         let username = inputUsername;
         let password = inputPassword;
 
-        return new Promise(async (resolve, rej) => {
-            if (username === null && password === null && document.cookie.trim() !== '') {
-                const data = document.cookie.split(';');
-                data.find((e) => { 
-                    if (e.match(/username=/)) {
-                        username = e.split('username=')[1];
-                    } else if (e.match(/password=/)) {
-                        password = e.split('password=')[1];
-                    }
-                });
-            }
-            if (username !== '' && password !== '') {
-                const $myAccount = document.querySelector('.my-account-btn');
-                const $logOut = document.querySelector('.btn-logout');
+        if (username === null && password === null && document.cookie.trim() !== '') {
+            const data = document.cookie.split(';');
+            data.find((e) => { 
+                if (e.match(/username=/)) {
+                    username = e.split('username=')[1];
+                } else if (e.match(/password=/)) {
+                    password = e.split('password=')[1];
+                }
+            });
+        }
+        if (username !== '' && password !== '') {
+            const $myAccount = document.querySelector('.my-account-btn');
+            const $logOut = document.querySelector('.btn-logout');
 
-               const user = await sendRequest(`${API_URL}/users?username=${username}&password=${password}`);
+            return sendRequest(`${API_URL}/users?username=${username}&password=${password}`)
+            .then((user) => {
                 if (user[0] !== undefined) {
                     this.user = user[0];
                     document.cookie = `username=${user[0].username}`;
@@ -194,8 +191,7 @@ class LoginUser {
                     $myAccount.classList.add('lk');
                     $logOut.classList.remove('hide');
                     modalClose();
-                }
-                else {
+                } else {
                     if (window.location.href.match('account') !== null) {
                         window.location.href = 'index.html';
                     }
@@ -207,16 +203,21 @@ class LoginUser {
                         $help.textContent = 'Invalid User Name Or Password';
                     }
                 }
+
                 this.cartRender(); // загружаем данные корзины для пользователя
-            } else {
-                this.cartRender(); // загружаем данные корзины для гостя
+                return  this.user;
+            });
+        
+        } else {
+            if (window.location.href.match(/account/)) {
+                window.location.href = `${API_URL}/index.html`;
             }
-            resolve(this.user);
-        });    
+            this.cartRender(); // загружаем данные корзины для гостя
+        }   
     }
 
     getId() {
-        return ((this.user !== "undefined" && this.user.id !== undefined )?  this.user.id : 0 );
+        return ((this.user !== "undefined" && this.user.id !== undefined )? this.user.id : 0 );
     }
 
     logOut() {
@@ -263,7 +264,6 @@ class Review {
     add() {
         const comment = document.querySelector('.comment__input').value;
         const id = document.querySelector('.single_product').dataset.id;
-        const userId = (loginUser.getId() !== undefined)? loginUser.getId() : 0;
         let dateTime = new Date();
         dateTime = dateTime.toISOString().split('.')[0].replace(/[a-zA-Z]/g,' ');
     
@@ -366,7 +366,6 @@ function modalClose(reload = false) {
     if (reload) {
         setTimeout((e) => { window.location.reload(false);  },500);
     }
-   
 }
 
 function doValidateRegisterForm() {
@@ -420,7 +419,7 @@ function createAccount(array) {
     });
     array['gender'] = gender;
     array['role'] = "user";
-    fetch(`${API_URL}/users/`, { method: 'POST',
+    fetch(`${API_URL}/users`, { method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -428,7 +427,6 @@ function createAccount(array) {
     }).then(() => 
         loginUser.login(LOGIN_MODE_USER, array['username'], array['password']) 
     );
-
     modalClose(true);
     showHelpModal('регистрация прошла успешно');
 }
@@ -439,11 +437,14 @@ $btnLogOut.addEventListener('click', (e) => {
     loginUser.logOut();
 });
 
-
 const $navigation = document.querySelector('.navigation');
 $navigation.addEventListener('click', (e) => {
     e.preventDefault();
     if (e.target.classList.contains('menu-link')) {
-        window.location.href = `product.html?type=${e.target.textContent}`;
+        if (e.target.textContent.toUpperCase() === 'HOME') {
+            window.location.href = `index.html`;
+        } else {
+            window.location.href = `product.html?type=${e.target.textContent}`;
+        }
     }
 });
