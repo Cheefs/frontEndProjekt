@@ -77,7 +77,7 @@ const $products = document.querySelector('.product-block');
         }
         const id = $productData.querySelector('.add-to-cart').dataset.id;
 
-        sendRequest(`${API_URL}/products/${id}`).then((value) => {
+        sendRequest(`${API_URL}/products?id=${id}`).then((value) => {
             const userId = loginUser.getId();
             value = value[0];
             const product = new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type);

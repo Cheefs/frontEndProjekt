@@ -217,7 +217,7 @@ $products.addEventListener('click', (e) => {
         }
         const id = $productData.dataset.id;
         const userId = loginUser.getId();
-        sendRequest(`${API_URL}/products/${id}`).then((value) => {
+        sendRequest(`${API_URL}/products?id=${id}`).then((value) => {
             value = value[0];
             cart.addProduct(new CartItem(null, value.id, userId, value.name, value.price, value.photo, value.size, value.color, value.category, value.type));
         });

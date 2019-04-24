@@ -53,7 +53,8 @@ class Cart {
         if (idx !== -1) {
             this.products[idx].count++;
                 if (+this.products[idx].product_id === +product.product_id) {
-                    sendRequest(`${API_URL}/cart/${userId}`).then((value) => {
+                    sendRequest(`${API_URL}/cart?userid=${userId}`).then((value) => {
+
                         const item = value.find((item) => (+item.product_id === +product.product_id && +item.userid === +userId) );
                         fetch(`${API_URL}/cart/${item.id}`, {
                             method: 'PATCH',

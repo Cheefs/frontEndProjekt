@@ -27,13 +27,32 @@ app.get('/products', (req, res) => {
     });
 });
 
+// app.get('/cart/:userid', (req, res) => {
+//     fs.readFile(`${DB}/cart.json`, 'utf-8',(err, data) => {
+//         if (err) {
+//             console.log(err)
+//         }
+//         let cart = JSON.parse(data);
+//         cart = cart.filter((item) => +item.userid === +req.body.userid);
+//         res.send(cart);
+//     });
+// });
+
 app.get('/cart', (req, res) => {
     fs.readFile(`${DB}/cart.json`, 'utf-8',(err, data) => {
         if (err) {
             console.log(err)
         }
         let cart = JSON.parse(data);
-        cart = cart.filter((item) => +item.userid === +req.query.userid);
+
+        if (Object.keys(req.query).length > 0) {
+            if (req.query.userid !== undefined) {
+                cart = cart.filter((item) => +item.userid === +req.query.userid);
+            } else if (req.query.id !== undefined) {
+                products = products.filter((item) => +item.id === +req.query.id);
+            }
+        }
+       
         res.send(cart);
     });
 });
