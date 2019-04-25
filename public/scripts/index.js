@@ -45,7 +45,7 @@ class ProductsList {
         this.minProducts = 9;
         this.maxProducts = 19;
         this.products = [];
-        this.curentMark = 'featured'
+        this.curentMark = 'featured';
     }
     fetchItems() {
         return sendRequest(`${API_URL}/products`).then((value) => {

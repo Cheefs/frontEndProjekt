@@ -59,12 +59,19 @@ class User {
     }
 }
 
-
 class UserData {
     constructor() {
         this.user = {};
         this.reviews = [];
         this.isAdmin = false;
+
+        this.validation = {
+            'username': /\w/,
+            'password': /\w/,
+            'email': /^[a-zA-Zа-яА-Я0-9]+?.[a-zA-Zа-яА-Я0-9]+\@[a-zA-Zа-яА-Я0-9]+\.[a-zA-Zа-яА-Я]{2,3}$/,
+            'card': /\d{13,19}/,
+            'bio': /[a-zA-Zа-яА-Я0-9]+/,
+        };
     }
 
     fetch (value) {
@@ -77,27 +84,18 @@ class UserData {
                 }
                 res(this.user);
             } else {
+                rej(console.log('permission denied'));
                 document.cookie = '';
             }
         });
     }
     addReviewBlock() {
-        return `<div class="nav__element reviews">Reviews</div>`
+        return `<div class="nav__element reviews">Reviews</div>`;
     }
 
     render () {
         document.querySelector('.my-data_container').innerHTML = this.user.render();
- 
         this.user.checkGender();
-
-        const $confirmField = document.getElementById('passwordConfirm');
-        $confirmField.addEventListener('keyup', (e) => {
-            const $password = document.getElementById('passwordEdit');
-            if ($password.value === $confirmField.value) {
-                document.querySelector('.help-block.password_edit').textContent = '';
-                $password.classList.remove('invalid');
-            }
-        }); 
     }
     
     fetchReviews() {
@@ -105,21 +103,20 @@ class UserData {
            this.reviews = val.map((rev) => new Review(rev.id, rev.username, rev.comment, rev.datetime, rev.status));
            const checkNavPanel = document.querySelector('.reviews');
            if ( checkNavPanel === null) {
-            document.querySelector('.nav__panel').innerHTML += this.addReviewBlock();
+                document.querySelector('.nav__panel').innerHTML += this.addReviewBlock();
            }
-          
         });
     }
 
     renderRewiews() {
         const itemsHtmls = this.reviews.map(rev => rev.render());
-        document.querySelector('.my-data_container').innerHTML = itemsHtmls.join('');
-
         const $listReviews = document.querySelectorAll('.helper');
+        document.querySelector('.my-data_container').innerHTML = itemsHtmls.join('');
+       
         for (var i = 0; i < $listReviews.length; i++) {
             const isNew = $listReviews[i].classList.contains('new');
             const id = $listReviews[i].parentElement.dataset.id;
-            $listReviews[i].innerHTML = userData.addAdminButtons( id, isNew );
+            $listReviews[i].innerHTML = userData.addAdminButtons(id, isNew);
         }
     }
     
@@ -127,7 +124,7 @@ class UserData {
         return `<div class="admin__controls" data-id="${id}">
                     ${ isNew? '<span class="admin__btn btn_primarry" data> Accept </span> ': ''}
                 <span class="admin__btn btn_danger"> Delete </span>  
-            </div>`
+            </div>`;
     }
 
     moderate(id) {
@@ -147,10 +144,102 @@ class UserData {
             this.renderRewiews();
         });
     }
+
+    doValidate() {
+        let result = true;
+        const updatedUser = this.user;
+        try {
+            Object.keys(this.validation).forEach(rule => {
+                const fields = document.querySelectorAll('[data-rule-modify="'+rule+'"]');
+                fields.forEach((field) => {
+                    if (rule === 'password' && field.value.trim() !== '') {
+                        if (this.validatePassword(field)) {
+                            updatedUser.password = field.value;
+                        } else {
+                            throw 'error';
+                        }
+                    } else {
+                        if (!this.validateField(this.validation, rule, field)) {
+                            throw 'error';
+                        }
+                    } 
+                });
+            }); 
+        } catch (ex) {
+            result = false;
+        }
+        if (result) {
+            this.saveChanges(updatedUser);
+        }
+    }
+
+    validateField(validation, rule, field) {
+        const required = ['username', 'email'];
+        let result = true;
+    
+        if (required.includes(rule)) {
+            if (validation[rule].test(field.value) ) {
+                field.classList.remove('invalid');
+            } else  {
+                result = false;
+                field.classList.add('invalid');
+            }
+        } else {
+            if (field.value.trim() !== '') {
+                if (validation[rule].test(field.value) ) {
+                    field.classList.remove('invalid');
+                } else  {
+                    result = false;
+                    field.classList.add('invalid');
+                } 
+            }
+        } 
+        return result;
+    }
+    
+    validatePassword(field) {
+        const confirm = document.getElementById('passwordConfirm');
+        let result = false;
+        if (field.value !== confirm.value) {
+            hasErors = true;
+            field.classList.add('invalid');
+            document.querySelector('.help-block.password_edit').textContent = 'passwords not mutch';
+        } else {
+            result = true; 
+        }
+        return result;
+    }
+    
+    saveChanges(updatedUser) {
+        const $textinputs = document.querySelectorAll('input[type=checkbox]');
+        updatedUser.username = document.getElementById('usernameEdit').value;
+    
+        document.cookie = `password=${updatedUser.password}`;
+        document.cookie = `username=${updatedUser.username}`;
+        updatedUser.email = document.getElementById('email-addresEdit').value;
+        updatedUser.card = document.getElementById('credit-cartEdit').value;
+        updatedUser.bio = document.getElementById('bioEdit').value.trim();
+    
+        [].filter.call($textinputs, (e) => {
+            if (e.checked) {
+                updatedUser.gender = e.value;
+            }
+        });
+    
+        fetch(`${API_URL}/users/${updatedUser.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({...updatedUser }),
+        });
+       showHelpModal('All Chenges Saved');
+    }
+
 }
 const userData = new UserData();
 
-window.addEventListener('load', (e)=> {
+window.addEventListener('load', (e) => {
     loginUser.login(LOGIN_MODE_AUTO).then((user) => {
         userData.fetch(user).then(() => userData.render());     
     });
@@ -173,100 +262,24 @@ $myData.addEventListener('click', (e) => {
             userData.deleteReview(id);
         }   
     } else if (e.target.classList.contains('btn_save')) {
-        doValidate();
+        userData.doValidate();
     } 
 });
 
-function doValidate() {
-    const validation = {
-        'username': /\w/,
-        'password': /\w/,
-        'email': /^[a-zA-Zа-яА-Я0-9]+?.[a-zA-Zа-яА-Я0-9]+\@[a-zA-Zа-яА-Я0-9]+\.[a-zA-Zа-яА-Я]{2,3}$/,
-        'card': /\d{13,19}/,
-        'bio': /[a-zA-Zа-яА-Я0-9]+/,
-    };
-
-    const required = [
-        'username', 'email'
-    ];
-
-    let hasErors = false;
-    const updatedUser = { id: userData.user.id };
-
-    Object.keys(validation).forEach(rule => {
-        const fields = document.querySelectorAll('[data-rule-modify="'+rule+'"]');
-        fields.forEach( field => {
-            if (rule === 'password' && field.value.trim() !== '') {
-                const confirm = document.getElementById('passwordConfirm');
-                if(field.value !== confirm.value) {
-                    hasErors = true;
-                    field.classList.add('invalid');
-                    document.querySelector('.help-block.password_edit').textContent = 'passwords not mutch';
-                } else {
-                    updatedUser.password = field.value; 
-                }
-
-            } else {
-                if (required.includes(rule)) {
-                    if (validation[rule].test(field.value) ) {
-                        field.classList.remove('invalid');
-                    } else  {
-                        hasErors = true;
-                        field.classList.add('invalid');
-                    }
-                } else {
-                    if (field.value.trim() !== '') {
-                        if (validation[rule].test(field.value) ) {
-                            field.classList.remove('invalid');
-                        } else  {
-                            hasErors = true;
-                            field.classList.add('invalid');
-                        } 
-                    }
-                }   
-            } 
-        });
-    });
-    const $creditCartInput = document.getElementById('credit-cartRegister');
-    $creditCartInput.addEventListener('keyup', e => {
-        e.target.value = e.target.value.replace(/\D/g, "");
-    });
-    
-    if (!hasErors) {
-        saveChanges(updatedUser);
-    }
-}
-
-function saveChanges(updatedUser) {
-    const $textinputs = document.querySelectorAll('input[type=checkbox]');
-    updatedUser.username = document.getElementById('usernameEdit').value;
-    document.cookie = `username=${updatedUser.username}`;
-    const password = document.getElementById('passwordEdit').value;
-
-    if (password.trim() !== '' && password !== null && password !== userData.user.password) {
-        updatedUser.password = password;
-        document.cookie = `password=${password}`;
-    }
-
-    updatedUser.email = document.getElementById('email-addresEdit').value;
-    updatedUser.card = document.getElementById('credit-cartEdit').value;
-    updatedUser.bio = document.getElementById('bioEdit').value.trim();
-
-    [].filter.call($textinputs, (e) => {
-        if (e.checked) {
-            updatedUser.gender = e.value;
+$myData.addEventListener('keyup', (e) => {
+    if (e.target.id === 'passwordConfirm') {
+        const $password = document.getElementById('passwordEdit');
+        if ($password.value === e.target.value) {
+            document.querySelector('.help-block.password_edit').textContent = '';
+            $password.classList.remove('invalid');
         }
-    });
-
-    fetch(`${API_URL}/users/${updatedUser.id}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({...updatedUser }),
-    });
-   showHelpModal('All Chenges Saved');
-}
+    } else if (e.target.id === 'credit-cartEdit') {
+        e.target.value = e.target.value.replace(/\D/g, '');
+        if (e.target.value.trim() === '' && e.target.classList.contains('invalid')) {
+            e.target.classList.remove('invalid');
+        }
+    }
+});
 
 const $navPanel = document.querySelector('.nav__panel');
 $navPanel.addEventListener('click', (e) => {

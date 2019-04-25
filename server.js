@@ -27,17 +27,6 @@ app.get('/products', (req, res) => {
     });
 });
 
-// app.get('/cart/:userid', (req, res) => {
-//     fs.readFile(`${DB}/cart.json`, 'utf-8',(err, data) => {
-//         if (err) {
-//             console.log(err)
-//         }
-//         let cart = JSON.parse(data);
-//         cart = cart.filter((item) => +item.userid === +req.body.userid);
-//         res.send(cart);
-//     });
-// });
-
 app.get('/cart', (req, res) => {
     fs.readFile(`${DB}/cart.json`, 'utf-8',(err, data) => {
         if (err) {
