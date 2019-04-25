@@ -235,10 +235,9 @@ class UserData {
         });
        showHelpModal('All Chenges Saved');
     }
-
 }
-const userData = new UserData();
 
+const userData = new UserData();
 window.addEventListener('load', (e) => {
     loginUser.login(LOGIN_MODE_AUTO).then((user) => {
         userData.fetch(user).then(() => userData.render());     

@@ -1,5 +1,5 @@
 class Product {
-    constructor(id, photo, name, price, size, count, color, material, brand, type, category, desc ='', currency = "$" ) {
+    constructor(id, photo, name, price, size, count, color, material, brand, type, category, desc ='', currency = "$", photos ) {
         this.id = id;
         this.photo = photo;
         this.name = name;
@@ -13,7 +13,7 @@ class Product {
         this.category = category;
         this.desc = desc;
         this.currency = currency;
-        
+        this.photos = photos;
         this.colors = ['red','black','yellow','green','white'];
         this.sizes = ['XXL', 'XL', 'L', 'M', 'S', 'XS', 'XXS'];
     }
@@ -23,6 +23,9 @@ class Product {
                     <div class="photo">
                         <div class="photo-link">
                             <img class="photo_img"src="${this.photo}">
+                        </div>
+                        <div class="all-photos hide">
+                            ${this.setProductPhotos()}
                         </div>
                     </div>
                     <a href="#" class="arrow right"><i class="fas fa-angle-left"></i></a>`;
@@ -75,11 +78,7 @@ class Product {
     }
 
     renderOptions(array) {
-        let optionsString = '';
-        array.forEach((el) => {
-            optionsString += `<option value="${el}">${el}</option>`
-        });
-        return optionsString;
+        return  array.reduce((acc, el) => acc +`<option value="${el}">${el}</option>`, 0);
     }
 
     render() {
@@ -109,6 +108,11 @@ class Product {
                     </div>
                 </div>`
     }
+
+    setProductPhotos() {
+        return this.photos.reduce((acc, item) => acc + `<img class="photo_img" src="${item}" alt="photo">`, 0);
+    }
+
 }
 
 class RecomendedProducts {
@@ -141,20 +145,17 @@ window.addEventListener('load', (e)=> {
     if (location.search.trim() !== '') {
         id = location.search.split('=')[1];
     }
-
     sendRequest(`${API_URL}/products?id=${id}`).then((data) => {
+        data = data[0];
         const singleProduct = new Product( 
-            data[0].id, data[0].photo, data[0].name, data[0].price, data[0].size, data[0].count,
-            data[0].color, data[0].material, data[0].brand, data[0].type, data[0].category, data[0].desc 
+            data.id, data.photo, data.name, data.price, data.size, data.count,
+            data.color, data.material, data.brand, data.type, data.category, data.desc, data.currency, data.photos 
         );
         document.querySelector('.slider').innerHTML = singleProduct.renderSlider();
         document.querySelector('.product-desc').innerHTML = singleProduct.renderProduct();
-
         return singleProduct;
-    }).then((product) => {
-            recomended.fetchItems(product.id, product.type).then(() => 
-                document.querySelector('.product-container').innerHTML = recomended.render() 
-            );
+    }).then((product) => { recomended.fetchItems(product.id, product.type).then(() => 
+                document.querySelector('.product-container').innerHTML = recomended.render());
     }).then(() => {
         const $colorPicker = document.querySelector('.select_color');
         const $colorExample = document.querySelector('.color-example');
@@ -168,9 +169,7 @@ window.addEventListener('load', (e)=> {
     });
 });
 
-
 const $productContainer = document.querySelector('.product-desc');
-
 $productContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn_buy') || e.target.parentElement.classList.contains('btn_buy')) {
         const id = (e.target.parentElement.classList.contains('btn_buy'))? e.target.parentElement.dataset.id : e.target.dataset.id;
@@ -187,7 +186,6 @@ $productContainer.addEventListener('click', (e) => {
        const count = document.querySelector('.input_count').value;
 
         sendRequest(`${API_URL}/products/${id}`).then((value) => {
-            console.log(value);
             const product = new CartItem(null, value[0].id, username, value[0].name, value[0].price, 
                 value[0].photo, size, color, value[0].category, value[0].type, count
             );
@@ -203,8 +201,9 @@ const $products = document.querySelector('.product-container');
         let $productData = e.target.parentElement.parentElement.parentElement;
         const id = e.target.classList.contains('add-to-cart')? e.target.dataset.id : $productData.querySelector('.add-to-cart').dataset.id;
         sendRequest(`${API_URL}/products?id=${id}`).then((value) => {
-            const product = new CartItem(null, value[0].id, username, value[0].name, value[0].price, 
-                value[0].photo, value[0].size, value[0].color, value[0].category, value[0].type, value[0].count
+            value = value[0];
+            const product = new CartItem(null, value.id, username, value.name, value.price, 
+                value.photo, value.size, value.color, value.category, value.type, value.count
             );
             cart.addProduct(product);
         });
@@ -246,4 +245,32 @@ $btnAddComment.addEventListener('click', (e) => {
     reviewList.init();
     document.querySelector('.comment__input').value = '';
     showHelpModal('ваш отзыв отправлен на модерацию');
+});
+
+const $sliderContainer = document.querySelector('.slider');
+let activeIndex = 1;
+$sliderContainer.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains('arrow') || e.target.parentElement.classList.contains('arrow')) {
+        const target = e.target.classList.contains('arrow')? e.target : e.target.parentElement;
+        const $listPhotos = document.querySelector('.all-photos').children;
+
+        if ($listPhotos.length > 0) {
+            const $currPhoto = document.querySelector('.photo_img');
+            if (target.classList.contains('right')) {
+                if (activeIndex > 1) {
+                    activeIndex--;
+                } else {
+                    activeIndex = $listPhotos.length;
+                }
+            } else {
+                if (activeIndex < $listPhotos.length) {
+                    activeIndex++;
+                } else {
+                    activeIndex = 1;
+                }
+            }
+            $currPhoto.src = $listPhotos[activeIndex - 1].src;
+        }
+    }
 });
