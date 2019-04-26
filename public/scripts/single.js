@@ -110,7 +110,10 @@ class Product {
     }
 
     setProductPhotos() {
-        return this.photos.reduce((acc, item) => acc + `<img class="photo_img" src="${item}" alt="photo">`, 0);
+        if (this.photos !== undefined) {
+            return this.photos.reduce((acc, item) => acc + `<img class="photo_img" src="${item}" alt="photo">`, 0);
+        }
+        
     }
 
 }
@@ -155,7 +158,7 @@ window.addEventListener('load', (e)=> {
         document.querySelector('.product-desc').innerHTML = singleProduct.renderProduct();
         return singleProduct;
     }).then((product) => { recomended.fetchItems(product.id, product.type).then(() => 
-                document.querySelector('.product-container').innerHTML = recomended.render());
+            document.querySelector('.product-container').innerHTML = recomended.render());
     }).then(() => {
         const $colorPicker = document.querySelector('.select_color');
         const $colorExample = document.querySelector('.color-example');
@@ -185,9 +188,10 @@ $productContainer.addEventListener('click', (e) => {
         
        const count = document.querySelector('.input_count').value;
 
-        sendRequest(`${API_URL}/products/${id}`).then((value) => {
-            const product = new CartItem(null, value[0].id, username, value[0].name, value[0].price, 
-                value[0].photo, size, color, value[0].category, value[0].type, count
+        sendRequest(`${API_URL}/products?id=${id}`).then((value) => {
+            value = value[0];
+            const product = new CartItem(null, value.id, username, value.name, value.price, 
+                value.photo, size, color, value.category, value.type, count
             );
             cart.addProduct(product);
         });
@@ -244,7 +248,7 @@ $btnAddComment.addEventListener('click', (e) => {
     rev.add();
     reviewList.init();
     document.querySelector('.comment__input').value = '';
-    showHelpModal('ваш отзыв отправлен на модерацию');
+    modal.showHelpModal('ваш отзыв отправлен на модерацию');
 });
 
 const $sliderContainer = document.querySelector('.slider');

@@ -33,7 +33,6 @@ app.get('/cart', (req, res) => {
             console.log(err)
         }
         let cart = JSON.parse(data);
-
         if (Object.keys(req.query).length > 0) {
             if (req.query.userid !== undefined) {
                 cart = cart.filter((item) => +item.userid === +req.query.userid);
@@ -63,7 +62,6 @@ app.post('/cart', (req, res) => {
         });
     });
 });
-
 
 app.patch('/cart/:id', (req, res) => {
     fs.readFile(`${DB}/cart.json`, 'utf-8',(err, data) => {
@@ -132,8 +130,7 @@ app.post('/users', (req, res) => {
     });
 });
 
-
-  app.patch('/users/:id', (req, res) => {
+app.patch('/users/:id', (req, res) => {
     fs.readFile(`${DB}/users.json`, 'utf-8',(err, data) => {
         if (err) {
             return console.log(err)
@@ -189,7 +186,6 @@ app.post('/reviews', (req, res) => {
     });
 });
 
-
 app.patch('/reviews/:id', (req, res) => {
     fs.readFile(`${DB}/reviews.json`, 'utf-8',(err, data) => {
         if (err) {
@@ -226,4 +222,20 @@ app.delete('/reviews/:id', (req, res) => {
             res.send(reviews);
         });
     });
+});
+
+app.post('/subscribers', (req, res) => {
+   fs.readFile(`${DB}/subscribers.json`,'utf-8', (err, data) => {
+        if (err) {
+            return console.log(err);
+        }
+        const subscribers = JSON.parse(data);
+        req.body.id = subscribers.length + 1;
+        subscribers.push(req.body);
+        fs.writeFile(`${DB}/subscribers.json`, JSON.stringify(subscribers), (err) => {
+            if (err) {
+                return console.log(err);
+            }
+        });
+   }); 
 });

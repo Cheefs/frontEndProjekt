@@ -233,7 +233,7 @@ class UserData {
             },
             body: JSON.stringify({...updatedUser }),
         });
-       showHelpModal('All Chenges Saved');
+        modal.showHelpModal('All Chenges Saved');
     }
 }
 

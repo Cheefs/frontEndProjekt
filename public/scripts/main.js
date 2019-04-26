@@ -23,6 +23,44 @@ function sendRequest(url) {
     return fetch(url).then((response) => response.json());
 }
 
+class Modal {
+    showHelpModal(message = null) {
+        if (message !== null) {
+            document.querySelector('.info_text').textContent =  message;
+        }
+        const $modal = document.getElementById('modalHelp');
+        const $modalDialog = $modal.querySelector('.modal-content');
+        this.modalShow($modalDialog, $modal);
+    }
+    
+    modalShow($dialog, $modal) {
+        $dialog.classList.remove('modal_close');
+        $dialog.classList.add('modal_open');
+        $modal.classList.remove('hide');
+    }
+    
+    modalClose(reload = false) {
+        let $node = document.getElementsByClassName('modal-content');
+        for (var i = 0; i < $node.length; i++) {
+            if (!$node[i].parentElement.classList.contains('hide')) {
+                setTimeout(() => $node[i].parentElement.classList.add('hide'), 500);
+                $node[i].classList.add('modal_close');
+                $node[i].classList.remove('modal_open');
+                break;
+            }
+        }
+        const $help = document.querySelector('.help-block');
+        $help.textContent = "";
+        document.querySelector('.modal_login').classList.remove('hide');
+        document.querySelector('.modal_register').classList.add('hide');
+    
+        if (reload) {
+            setTimeout((e) => { window.location.reload(false);  },500);
+        }
+    }
+}
+
+const modal = new Modal();
 class Cart {
     constructor(currency = "$") {
         this.currency = currency;
@@ -51,8 +89,10 @@ class Cart {
         const userId = loginUser.getId();
         const idx = this.products.findIndex((e) => +e.product_id === +product.product_id);
         if (idx !== -1) {
-            this.products[idx].count++;
-                if (+this.products[idx].product_id === +product.product_id) {
+            let count  = this.products[idx].count < product.count? product.count : this.products[idx].count;
+            count++;
+                if (+this.products[idx].product_id === +product.product_id 
+                    && product.size === this.products[idx].size && product.color === this.products[idx].color) {
                     sendRequest(`${API_URL}/cart?userid=${userId}`).then((value) => {
 
                         const item = value.find((item) => (+item.product_id === +product.product_id && +item.userid === +userId) );
@@ -61,7 +101,7 @@ class Cart {
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ count: this.products[idx].count }),
+                            body: JSON.stringify({ count: count }),
                         });
                     });
                     
@@ -78,7 +118,7 @@ class Cart {
                     this.products.push(cartItem);
                 });
             }
-        showHelpModal();
+        modal.showHelpModal();
         this.reload();
     }
 
@@ -162,6 +202,14 @@ class CartItem {
 class LoginUser {
     constructor() {
        this.user = {};
+       this.required = ['username', 'password', 'email'];
+       this.validation = {
+            'username': /\w+/,
+            'password': /\w+/,
+            'email': /^[a-zA-Zа-яА-Я0-9]+?.[a-zA-Zа-яА-Я0-9]+\@[a-zA-Zа-яА-Я0-9]+\.[a-zA-Zа-яА-Я]{2,3}$/,
+            'card': /\d{13,19}/,
+            'bio': /[a-zA-Zа-яА-Я0-9]+/
+        };
     }
 
     login(loginMode, inputUsername = null, inputPassword = null) {
@@ -191,7 +239,7 @@ class LoginUser {
                     $myAccount.textContent = 'My Account';
                     $myAccount.classList.add('lk');
                     $logOut.classList.remove('hide');
-                    modalClose();
+                    modal.modalClose();
                 } else {
                     if (window.location.href.match('account') !== null) {
                         window.location.href = 'index.html';
@@ -238,8 +286,52 @@ class LoginUser {
         }
         cart.fetchItems().then(() => document.querySelector('.cart__container').innerHTML = cart.render());
     }
+
     renderMyAccount(obj) {
         obj.fetch().then(() => obj.render());
+    }
+
+    doValidateRegisterForm() {
+        let hasErors = false;
+        Object.keys(this.validation).forEach(rule => {
+            const fields = document.querySelectorAll('[data-rule="'+rule+'"]');
+            fields.forEach(field => {
+                if (this.validation[rule].test(field.value)) {
+                    this.user[rule] = field.value;
+                    field.classList.remove('invalid');
+                } else {
+                    if (field.value.trim() === this.required.includes(rule)) {
+                        hasErors = true;
+                        field.classList.add('invalid');
+                    }
+                }
+            });
+        });
+        if (!hasErors) {
+            this.createAccount();
+        }
+    }
+    
+    createAccount() {
+        var $textinputs = document.querySelectorAll('input[type=checkbox]');
+        let gender = null;
+        [].filter.call($textinputs, (e) => {
+            if (e.checked) {
+                gender = e.value;
+            }
+        });
+        this.user.gender = gender;
+        this.user.role = "user";
+        fetch(`${API_URL}/users`, { method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...this.user }),
+        }).then(() => 
+            loginUser.login(LOGIN_MODE_USER, this.user.username, this.user.password) 
+        );
+        modal.modalClose(true);
+        modal.showHelpModal('регистрация прошла успешно');
     }
 }
 
@@ -309,7 +401,7 @@ $modal.addEventListener('click', e => {
             document.getElementById('genderMan').checked = false;
         }
     } else if (e.target.classList.contains('btn_register')) {
-        doValidateRegisterForm();
+        loginUser.doValidateRegisterForm();
     } else if (e.target.classList.contains('btn-login')) {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
@@ -322,115 +414,23 @@ const $modalDialog = $modal.querySelector('.modal-content');
 
 window.addEventListener('click', (e) => {
     if (e.target.classList.contains('close') || e.target.classList.contains('btn_confirm') ) {
-        modalClose(true)
+        modal.modalClose(true)
     } else if (e.target.classList.contains('modal')) {
-        modalClose(true);
+        modal.modalClose(true);
     } else if (e.target.classList.contains('my-account-btn')) {
         if (e.target.classList.contains('lk')) {
             window.location.href = `${API_URL}/account.html`
         } else {
-            modalShow($modalDialog, $modal);
+            modal.modalShow($modalDialog, $modal);
         }  
     }
 });
 
-function showHelpModal(message = null) {
-    if (message !== null) {
-        document.querySelector('.info_text').textContent =  message;
-    }
-    const $modal = document.getElementById('modalHelp');
-    const $modalDialog = $modal.querySelector('.modal-content');
-    modalShow($modalDialog, $modal);
-}
-
-function modalShow($dialog, $modal) {
-    $dialog.classList.remove('modal_close');
-    $dialog.classList.add('modal_open');
-    $modal.classList.remove('hide');
-}
-
-function modalClose(reload = false) {
-    let $node = document.getElementsByClassName('modal-content');
-    for (var i = 0; i < $node.length; i++) {
-        if (!$node[i].parentElement.classList.contains('hide')) {
-            setTimeout(() => $node[i].parentElement.classList.add('hide'), 500);
-            $node[i].classList.add('modal_close');
-            $node[i].classList.remove('modal_open');
-            break;
-        }
-    }
-    const $help = document.querySelector('.help-block');
-    $help.textContent = "";
-    document.querySelector('.modal_login').classList.remove('hide');
-    document.querySelector('.modal_register').classList.add('hide');
-
-    if (reload) {
-        setTimeout((e) => { window.location.reload(false);  },500);
-    }
-}
-
-function doValidateRegisterForm() {
-    const validation = {
-        'username': /\w+/,
-        'password': /\w+/,
-        'email': /^[a-zA-Zа-яА-Я0-9]+?.[a-zA-Zа-яА-Я0-9]+\@[a-zA-Zа-яА-Я0-9]+\.[a-zA-Zа-яА-Я]{2,3}$/,
-        'card': /\d{13,19}/,
-        'bio': /[a-zA-Zа-яА-Я0-9]+/
-    };
-
-    const required = [
-        'username', 'password', 'email'
-    ];
-
-    const newUser = [];
-    let hasErors = false;
-
-    Object.keys(validation).forEach(rule => {
-        const fields = document.querySelectorAll('[data-rule="'+rule+'"]');
-        fields.forEach(field => {
-            if (validation[rule].test(field.value)) {
-                newUser[rule] = field.value;
-                field.classList.remove('invalid');
-            } else {
-                if (field.value.trim() === required.includes(rule)) {
-                    hasErors = true;
-                    field.classList.add('invalid');
-                }
-            }
-        });
-    });
-    if (!hasErors) {
-        createAccount(newUser);
-    }
-}
 
 const $creditCartInput = document.getElementById('credit-cartRegister');
 $creditCartInput.addEventListener('keyup', e => {
     e.target.value = e.target.value.replace(/\D/g, "");
 });
-
-function createAccount(array) {
-    var $textinputs = document.querySelectorAll('input[type=checkbox]');
-    let gender = null;
-
-    [].filter.call($textinputs, (e) => {
-        if (e.checked) {
-            gender = e.value;
-        }
-    });
-    array['gender'] = gender;
-    array['role'] = "user";
-    fetch(`${API_URL}/users`, { method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...array }),
-    }).then(() => 
-        loginUser.login(LOGIN_MODE_USER, array['username'], array['password']) 
-    );
-    modalClose(true);
-    showHelpModal('регистрация прошла успешно');
-}
 
 const $btnLogOut = document.querySelector('.btn-logout');
 $btnLogOut.addEventListener('click', (e) => {
@@ -448,4 +448,46 @@ $navigation.addEventListener('click', (e) => {
             window.location.href = `product.html?type=${e.target.textContent}`;
         }
     }
+});
+
+const $btnSubscribe = document.querySelector('.btn-subscribe');
+
+$btnSubscribe.addEventListener('click', (e) => {
+    const rule = /^[a-zA-Zа-яА-Я0-9]+?.[a-zA-Zа-яА-Я0-9]+\@[a-zA-Zа-яА-Я0-9]+\.[a-zA-Zа-яА-Я]{2,3}$/;
+    const $subscriberEmail = document.querySelector('.email-form-input');
+    const $container = document.querySelector('.subcribe-form')
+
+    let $errorBlock = document.querySelector('.subscribe__error');
+
+    if (rule.test($subscriberEmail.value)) {
+        $subscriberEmail.classList.remove('has_error');
+        if  ($errorBlock !== null && $errorBlock !== undefined && !$errorBlock.classList.contains('hide')) {
+            $errorBlock.classList.add('hide');
+        }
+
+        fetch(`${API_URL}/subscribers`, { method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: $subscriberEmail.value }),
+        });
+
+        modal.showHelpModal('you have subscribed!');
+
+    } else {
+        $subscriberEmail.classList.add('has_error');
+       if ($errorBlock === undefined || $errorBlock === null) {
+            const $err = document.createElement('p');
+            $err.classList.add('subscribe__error');
+            $err.textContent = 'wrong email address';
+            $container.append($err)
+       } else {
+            $errorBlock.classList.remove('hide');
+           
+       }
+
+     
+     
+    }
+
 });

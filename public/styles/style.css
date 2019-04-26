@@ -1014,6 +1014,10 @@ header {
         .comments-block .container-feed .content .subcribe-form .text-block p {
           font-weight: 400;
           font-size: 14px; }
+      .comments-block .container-feed .content .subcribe-form .subscribe__error {
+        color: red;
+        position: ABSOLUTE;
+        right: 25%; }
       .comments-block .container-feed .content .subcribe-form .email-form {
         width: 386px;
         height: 46px;
@@ -1027,6 +1031,8 @@ header {
           padding: 0 20px;
           border-radius: 23px 0 0 23px;
           border-color: transparent; }
+          .comments-block .container-feed .content .subcribe-form .email-form .email-form-input.has_error {
+            border-color: red; }
         .comments-block .container-feed .content .subcribe-form .email-form .btn-subscribe {
           cursor: pointer;
           width: 104px;

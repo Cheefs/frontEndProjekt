@@ -1094,6 +1094,10 @@ header
           p
             font-weight: 400
             font-size: 14px
+        .subscribe__error
+          color: red
+          position: ABSOLUTE
+          right: 25%
 
         .email-form
           width: 386px
@@ -1110,6 +1114,8 @@ header
             padding: 0 20px
             border-radius: 23px 0 0 23px
             border-color: transparent
+            &.has_error
+              border-color: red
 
           .btn-subscribe
             cursor: pointer

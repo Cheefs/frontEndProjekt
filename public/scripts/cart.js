@@ -8,7 +8,7 @@ class CartPage {
         const userId = loginUser.getId();
         return sendRequest(`${API_URL}/cart?userid=${userId}`).then((value) => {
             this.products = value.map(product =>
-                new Item( product.id, product.name, product.price, product.photo, product.count, product.currency, product.size, product.color));
+                new Item( product.id, product.product_id, product.name, product.price, product.photo, product.count, product.currency, product.size, product.color));
         });
     }
 
@@ -83,8 +83,9 @@ class CartPage {
 }
 
 class Item {
-    constructor (id, name, price, photo, count = 1, currency = '$', size, color, shipping = 'FREE') {
+    constructor (id, product_id, name, price, photo, count = 1, currency = '$', size, color, shipping = 'FREE') {
         this.id = id;
+        this.product_id = product_id;
         this.name = name;
         this.price = price;
         this.photo = photo;
@@ -98,7 +99,7 @@ class Item {
         return  `<div class="table-row">
                     <div class="product-details">
                         <a href="single-page.html" class="photo-link">
-                            <div class="photo"">
+                            <div class="photo" data-id ="${this.product_id}">
                                 <img class="photo_img" src="${this.photo}" alt="photo">
                             </div>
                         </a>
@@ -135,17 +136,21 @@ window.addEventListener('load', (e)=> {
 });
 
 $btnClearCart.addEventListener('click', (e) => {
-    showHelpModal('All products has removed from cart');
+    modal.showHelpModal('All products has removed from cart');
     cartPage.deleteItem();
 });
 
 $cartContainer.addEventListener('click', (e) => {
+    e.preventDefault();
     if (e.target.classList.contains('btn_delete_one')) {
         const id = e.target.dataset.id;
         if (!isNaN(id)) {
             cartPage.deleteItem(id);
         }
-    } 
+    } else if (e.target.classList.contains('photo_img') || e.target.classList.contains('photo') ) {
+        const id = e.target.classList.contains('photo_img')? e.target.parentElement.dataset.id : e.target.dataset.id;
+        window.location.href = `${API_URL}/single-page.html?id=${id}`;
+    }
 });
 
 $cartContainer.addEventListener('mouseout', (e) => {
