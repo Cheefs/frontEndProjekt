@@ -2,9 +2,11 @@ DROP DATABASE IF EXISTS brand_shop;
 CREATE DATABASE brand_shop;
 USE brand_shop;
 
-/*
- Создание базовой таблици пользователей, при регистрации заполняется в первую очередь она
-*/
+/********************************************************************************************** 
+**********************  Структура работы с пользователями *************************************
+***********************************************************************************************/
+
+/* Создание базовой таблици пользователей, при регистрации заполняется в первую очередь она */
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
 	id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
@@ -16,22 +18,11 @@ CREATE TABLE users (
     INDEX user_email(email)
 ) comment 'Пользователи интернет магазина';
 
-INSERT INTO users (email, `password`) VALUES 
-( 'test@mail.test', '11111' ),
-( 'test1@mail.test', '55555' ),
-( 'test2@mail.test', '44444' ),
-( 'test3@mail.test', '33333' );
-
 CREATE TRIGGER on_users_update before UPDATE
 ON users FOR EACH ROW 
 set NEW.modify_date = now();
 
-update users u set u.email = 'updated@mail.upd' WHERE id = 1; 
-Select * from users;
-
-/*
-	Таблица дополнительной информации о пользователях
-*/
+/* Таблица дополнительной информации о пользователях */
 DROP TABLE IF EXISTS users_profiles;
 CREATE TABLE users_profiles (
 	id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
@@ -57,9 +48,7 @@ CREATE TABLE users_profiles (
         
 ) comment 'Профили пользователей';
 
-/* 
-	Группы для пользователей, чтоб было проще раздавать привелегии для них
-*/
+/* Группы для пользователей, чтоб было проще раздавать привелегии для них */
 DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
 	id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
@@ -77,9 +66,7 @@ CREATE TABLE `groups` (
 
 ) comment 'Список всех групп';
 
-/* 
-	Действия ( если нужно будет группам отдельно накидывать права)
-*/
+/* Действия ( если нужно будет группам отдельно накидывать права) */
 DROP TABLE IF EXISTS actions;
 CREATE TABLE actions (
 	id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
@@ -88,9 +75,7 @@ CREATE TABLE actions (
 	INDEX `action_name_inx`(`action_name`)
 ) comment 'Таблица действий';
 
-/* 
-	Действия которые доступны группам
-*/
+/* Действия которые доступны группам */
 DROP TABLE IF EXISTS group_actions;
 CREATE TABLE group_actions (
 	group_id bigint unsigned not null unique comment 'Указатель на группу',
@@ -104,9 +89,7 @@ CREATE TABLE group_actions (
 		ON UPDATE CASCADE ON DELETE restrict
 ) comment 'Таблица связки действий и групп';
 
-/* 
-	Связь пользователя с определенной группой
-*/
+/* Связь пользователя с определенной группой */
 DROP TABLE IF EXISTS users_groups;
 CREATE TABLE users_groups (
     user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя',
@@ -120,9 +103,7 @@ CREATE TABLE users_groups (
     	ON UPDATE CASCADE ON DELETE restrict
 ) comment 'Таблица связки групп и пользователей';
 
-/*
-  История авторизаций пользователя, нужна будет для сбора статистики
-*/
+/* История авторизаций пользователя, нужна будет для сбора статистики */
 DROP TABLE IF EXISTS login_history;
 CREATE TABLE login_history (
     user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя',
@@ -138,11 +119,12 @@ CREATE TABLE login_history (
 		ON UPDATE CASCADE ON DELETE restrict
 ) comment 'История авторизаций';
 
-/* Далее таблици которые используются непосредственно в работе магазина */
 
-/*
-   Категории товаров
-*/
+/********************************************************************************************** 
+**********************  Далее структура работы с товарами *************************************
+***********************************************************************************************/
+
+/* Категории товаров */
 DROP TABLE IF EXISTS products_categories;
 CREATE TABLE products_categories (
 	 id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
@@ -297,4 +279,109 @@ CREATE TABLE product_details (
 	FOREIGN KEY (modify_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict
 ) comment 'Таблица полной информации о товаре';
+
+/* таблица видов скидок */
+DROP TABLE IF EXISTS discount_types;
+CREATE TABLE discount_types ( 
+	id serial comment 'первичный ключ', 
+    type ENUM('percent', 'price') comment 'тип скидки, процент от суммы, либо просто вычесть значение скидки со стоимости',
+     is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+     
+	 create_date timestamp default now() comment 'Дата создания записи',
+     modify_date timestamp default now() comment 'Дата изменения записи',
+     create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+     modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+    
+    INDEX `type_inx`(`type`),
+    FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'Таблица видов скидок';
+
+/* таблица скидок */
+DROP TABLE IF EXISTS discounts;
+CREATE TABLE discounts (
+	id serial comment 'первичный ключ', 
+    discount bigint unsigned not null default '0' comment 'размер скидки',
+    discount_type_id bigint unsigned not null comment 'тип скидки',
+    
+	is_deleted bool DEFAULT false comment 'Флаг активности записи',
+	create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+
+	 INDEX `discount_inx`(`discount`),
+     
+	FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'таблица скидок';
+
+/* таблица связки товара и скидки */
+DROP TABLE IF EXISTS product_to_discounts;
+CREATE TABLE product_to_discounts (
+	product_id bigint unsigned not null comment 'указатель на товар',
+    discount_id bigint unsigned not null comment 'указатель на скидку',
+    
+	is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+    create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+    
+	FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'Связь скидки с товаром' ;
+
+/********************************************************************************************** 
+**********************  Далее структура работы с корзиной *************************************
+***********************************************************************************************/
+
+/* таблица корзины она у всех пользователей создается 1 раз, и активна всегда, удаляются только товары с нее через флаг deleted */
+DROP TABLE IF EXISTS cart;
+CREATE TABLE cart (
+	id serial comment 'первичный ключ',
+    user_id bigint unsigned not null comment 'Указатель на пользователя',
+    products_count bigint unsigned default 0 comment 'колличество товаров',
+    price varchar(256) default 0 comment 'Общая стоимость корзины',
+    
+	create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+    
+	FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'таблица корзины пользователей';
+
+/* таблица связи товаров с корзиной пользователя */
+DROP TABLE IF EXISTS cart_products;
+CREATE TABLE cart_products (
+	cart_id bigint unsigned not null comment 'указатель на корзину',
+    product_id bigint unsigned not null comment 'указатель на товар',
+    product_count int unsigned not null default 0 comment 'Колличество данного товара в корзине',
+    product_price varchar(256) not null default 0 comment 'Колличество данного товара в корзине',
+
+	is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+    create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+    
+	FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'таблица связи товаров с корзиной пользователя';
+
+/********************************************************************************************** 
+**********************  Далее структура работы с заказом **************************************
+***********************************************************************************************/
 
