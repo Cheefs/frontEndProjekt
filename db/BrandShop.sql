@@ -204,15 +204,15 @@ CREATE TABLE colors (
 /** справочник брендов\производителей */
 DROP TABLE IF EXISTS brands;
 CREATE TABLE brands (
-     id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
-     name varchar(256) comment 'Название Бренда\производитель',
-     logo varchar(256) comment 'Ссылка на файл с логотипом',
-	 is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+	id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
+	name varchar(256) comment 'Название Бренда\производитель',
+	logo varchar(256) comment 'Ссылка на файл с логотипом',
+	is_deleted bool DEFAULT false comment 'Флаг активности записи', 
 
-     create_date timestamp default now() comment 'Дата создания записи',
-     modify_date timestamp default now() comment 'Дата изменения записи',
-     create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
-     modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+	create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
     
 	FOREIGN KEY (create_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict,
@@ -224,16 +224,16 @@ CREATE TABLE brands (
 /** справочник возварастных групп */
 DROP TABLE IF EXISTS age_groups;
 CREATE TABLE age_groups (
-     id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
-     name varchar(256) comment 'Название возврастной группы',
-     min_age int unsigned not null comment 'Минимальный возвраст',
-     max_age int unsigned comment 'Максимальный возвраст',
-	 is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+	id SERIAL PRIMARY KEY COMMENT 'Первичный ключь',
+	name varchar(256) comment 'Название возврастной группы',
+	min_age int unsigned not null comment 'Минимальный возвраст',
+	max_age int unsigned comment 'Максимальный возвраст',
+	is_deleted bool DEFAULT false comment 'Флаг активности записи', 
 
-     create_date timestamp default now() comment 'Дата создания записи',
-     modify_date timestamp default now() comment 'Дата изменения записи',
-     create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
-     modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+	create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
     
 	FOREIGN KEY (create_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict,
@@ -249,7 +249,7 @@ CREATE TABLE product_details (
      color_id bigint unsigned unique not null comment 'указатель на цвет',
 	 brand_id bigint unsigned unique not null comment 'указатель на бренд производитель',
      age_group_id bigint unsigned unique not null comment 'указатель на возврастную группу',
-          sex ENUM('man', 'woman') not null comment 'Пол',
+	 sex ENUM('man', 'woman') not null comment 'Пол',
 	 `desc` varchar(256) comment 'описание товара',
 	 price bigint unsigned comment 'Цена товара', 
      
@@ -285,12 +285,12 @@ DROP TABLE IF EXISTS discount_types;
 CREATE TABLE discount_types ( 
 	id serial comment 'первичный ключ', 
     type ENUM('percent', 'price') comment 'тип скидки, процент от суммы, либо просто вычесть значение скидки со стоимости',
-     is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+	is_deleted bool DEFAULT false comment 'Флаг активности записи', 
      
-	 create_date timestamp default now() comment 'Дата создания записи',
-     modify_date timestamp default now() comment 'Дата изменения записи',
-     create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
-     modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+	create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
     
     INDEX `type_inx`(`type`),
     FOREIGN KEY (create_user_id) REFERENCES users(id)
@@ -312,8 +312,9 @@ CREATE TABLE discounts (
 	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
 	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
 
-	 INDEX `discount_inx`(`discount`),
-     
+	INDEX `discount_inx`(`discount`),
+    FOREIGN KEY (discount_type_id) REFERENCES discount_types(id)
+		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (create_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (modify_user_id) REFERENCES users(id)
@@ -332,11 +333,66 @@ CREATE TABLE product_to_discounts (
 	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
 	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
     
+	FOREIGN KEY (discount_id) REFERENCES discounts(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (create_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (modify_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict
 ) comment 'Связь скидки с товаром' ;
+
+/********************************************************************************************** 
+**********************  Далее структура работы с отзывами о продукте ***************************
+***********************************************************************************************/
+
+/* Таблица колмментариев\отзывов к товару */
+DROP TABLE IF EXISTS comments;
+CREATE TABLE comments ( 
+	id serial comment 'первичный ключ', 
+    `comment` text comment 'Комментарий к товару\отзыв',
+    likes bigint unsigned not null default 0 comment 'Колличество лайков\отметок что комментарий\отзыв полезный',
+    dislikes bigint unsigned not null default 0 comment 'Колличество лайков\отметок что комментарий\отзыв не полезный',
+    
+	is_deleted bool DEFAULT false comment 'Флаг активности записи', 
+    create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+    
+	FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'Таблица колмментариев\отзывов к товару';
+
+/* Таблица связки комментариев с продуктом и пользователем */
+DROP TABLE IF EXISTS product_comments;
+CREATE TABLE product_comments ( 
+    user_id  bigint unsigned not null comment 'Указатель на пользовтеля',
+    product_id bigint unsigned not null comment 'Указатель на продукт',
+    comment_id bigint unsigned not null comment 'Указатель на комментарий к продукту',
+    
+	create_date timestamp default now() comment 'Дата создания записи',
+	modify_date timestamp default now() comment 'Дата изменения записи',
+	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
+	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
+    
+	INDEX `comment_id_inx`(`comment_id`),
+	INDEX `product_id_inx`(`product_id`),
+    
+    FOREIGN KEY (user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	 FOREIGN KEY (product_id) REFERENCES products(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+     FOREIGN KEY (comment_id) REFERENCES comments(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (create_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
+	FOREIGN KEY (modify_user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict
+) comment 'Таблица связки комментариев с продуктом и пользователем ';
 
 /********************************************************************************************** 
 **********************  Далее структура работы с корзиной *************************************
@@ -355,6 +411,8 @@ CREATE TABLE cart (
 	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
 	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
     
+    FOREIGN KEY (user_id) REFERENCES users(id)
+		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (create_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (modify_user_id) REFERENCES users(id)
@@ -375,6 +433,8 @@ CREATE TABLE cart_products (
 	create_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который создал запись',
 	modify_user_id BIGINT UNSIGNED not null unique comment 'Указатель на пользователя который отредактировал запись',
     
+	FOREIGN KEY (product_id) REFERENCES products(id)
+		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (create_user_id) REFERENCES users(id)
 		ON UPDATE CASCADE ON DELETE restrict,
 	FOREIGN KEY (modify_user_id) REFERENCES users(id)
